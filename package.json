@@ -1,0 +1,20 @@
+{
+    "name": "improve-shader-tiny-wonder-engine",
+    "version": "0.0.1",
+    "authors": "yyc",
+    "license": "mit",
+    "scripts": {
+        "bsb:watch": "bsb -clean-world -make-world -w",
+        "bsb:build": "bsb -clean-world -make-world",
+        "webpack:dev": "NODE_ENV=development webpack --config webpack.config.js",
+        "webpack": "gulp generateIndex && npm run webpack:dev"
+    },
+    "devDependencies": {
+        "bs-platform": "^5.2.0",
+        "webpack": "^4.17.1",
+        "webpack-cli": "^3.1.0",
+        "gulp": "^3.9.1",
+        "wonder-generate-index": "0.1.0"
+    },
+    "dependencies": {}
+}

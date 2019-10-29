@@ -1,0 +1,1 @@
+type debugData = {mutable isDebug: bool};

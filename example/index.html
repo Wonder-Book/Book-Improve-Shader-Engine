@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>use engine</title>
+</head>
+
+<body>
+  <canvas id="webgl" width="400" height="400">
+    Please use a browser that supports "canvas"
+  </canvas>
+
+  <script src="../dist/wd.js"></script>
+  <script>
+    var vs1 = `
+  precision mediump float;
+  attribute vec3 a_position;
+  uniform mat4 u_pMatrix;
+  uniform mat4 u_vMatrix;
+  uniform mat4 u_mMatrix;
+
+  void main() {
+    gl_Position = u_pMatrix * u_vMatrix * u_mMatrix * vec4(a_position, 1.0);
+  }
+  `;
+    var fs1 = ` 
+      precision mediump float;
+
+    uniform vec3 u_color0;
+
+    void main(){
+      gl_FragColor = vec4(u_color0, 1.0);
+    }
+    `;
+
+    var vs2 = `
+      precision mediump float;
+    attribute vec3 a_position;
+    uniform mat4 u_pMatrix;
+    uniform mat4 u_vMatrix;
+    uniform mat4 u_mMatrix;
+
+    void main() {
+      gl_Position = u_pMatrix * u_vMatrix * u_mMatrix * vec4(a_position, 1.0);
+    }
+    `;
+    var fs2 = `
+      precision mediump float;
+
+    uniform vec3 u_color0;
+    uniform vec3 u_color1;
+
+    void main(){
+      gl_FragColor = vec4(u_color0 * u_color1, 1.0);
+    }
+    `;
+
+    function _createCameraData(canvas) {
+      var vMatrix =
+        wd.setLookAt([0.0, 0.0, 5.0], [0.0, 0.0, -100.0], [0.0, 1.0, 0.0], wd.createIdentityMatrix());
+
+      var pMatrix = wd.buildPerspective(
+        [
+          30.0,
+          canvas.width / canvas.height,
+          1.0, 100.0
+        ],
+        wd.createIdentityMatrix()
+      );
+
+      return [vMatrix, pMatrix];
+    }
+
+
+    var state = wd.createState();
+
+    var state = wd.setCanvasById("webgl", state);
+
+    var canvas = wd.unsafeGetCanvas(state);
+
+    var state = wd.setClearColor([0.0, 0.0, 0.0, 1.0], state);
+
+    var state = wd.addGLSL("shader1", [[vs1, fs1], ["a_position"], ["u_mMatrix", "u_vMatrix", "u_pMatrix", "u_color0"]], state);
+    var state = wd.addGLSL("shader2", [[vs2, fs2], ["a_position"], ["u_mMatrix", "u_vMatrix", "u_pMatrix", "u_color0", "u_color1"]], state);
+
+
+    var state = wd.addGameObjectData(
+      wd.setTranslation(
+        [
+          0.75, 0.0, 0.0
+        ],
+
+        wd.createIdentityMatrix()
+      ),
+      wd.createTriangleGeometryData(),
+      ["shader1", [[1.0, 0.0, 0.0]]],
+      state
+    );
+    var state = wd.addGameObjectData(
+      wd.setTranslation(
+        [
+          0.0, 0.0, 0.5
+        ],
+
+        wd.createIdentityMatrix()
+      ),
+      wd.createTriangleGeometryData(),
+      ["shader2", [[0.0, 0.8, 0.0], [0.0, 0.5, 0.0]]],
+      state
+    );
+    var state = wd.addGameObjectData(
+      wd.setTranslation(
+        [
+          -0.5, 0.0, -2.0
+        ],
+
+        wd.createIdentityMatrix()
+      ),
+      wd.createTriangleGeometryData(),
+      ["shader1", [[0.0, 0.0, 1.0]]],
+      state
+    );
+
+    var state = wd.setCameraData(
+      _createCameraData(canvas), state
+    );
+
+    var state = wd.initAll(
+      {
+        "alpha": true,
+        "depth": true,
+        "stencil": false,
+        "antialias": true,
+        "premultipliedAlpha": true,
+        "preserveDrawingBuffer": false,
+      },
+      state
+    );
+
+    wd.loop(state);
+  </script>
+</body>
+
+</html>

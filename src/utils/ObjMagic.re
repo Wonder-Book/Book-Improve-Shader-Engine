@@ -1,0 +1,1 @@
+let returnMagicValue = _ => Obj.magic(-1);

@@ -1,0 +1,1 @@
+let setCameraData = Camera.setCameraData;

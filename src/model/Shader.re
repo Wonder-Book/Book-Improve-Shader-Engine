@@ -1,7 +1,7 @@
 open StateDataType;
 
 module GLSL = {
-  let createGLSLData = () => {glslMap: ImmutableHashMap.createEmpty()};
+  let createGLSLData = () => {glslMap: TinyWonderCommonlib.ImmutableHashMap.createEmpty()};
 
   let _getGLSLMap = state => state.glslData.glslMap;
 
@@ -16,7 +16,7 @@ module GLSL = {
   let addGLSL = (shaderName, glslData, state) =>
     _setGLSLMap(
       _getGLSLMap(state)
-      |> ImmutableHashMap.set(
+      |> TinyWonderCommonlib.ImmutableHashMap.set(
            ShaderWT.ShaderName.value(shaderName),
            glslData,
          ),
@@ -24,7 +24,7 @@ module GLSL = {
     );
 
   let getAllValidGLSLEntries = state =>
-    _getGLSLMap(state) |> ImmutableHashMap.getValidEntries;
+    _getGLSLMap(state) |> TinyWonderCommonlib.ImmutableHashMap.getValidEntries;
 
   let getAllValidGLSLEntryList = state =>
     state |> getAllValidGLSLEntries |> Array.to_list;
@@ -32,7 +32,7 @@ module GLSL = {
 
 module Program = {
   let createProgramData = () => {
-    programMap: ImmutableHashMap.createEmpty(),
+    programMap: TinyWonderCommonlib.ImmutableHashMap.createEmpty(),
     lastUsedProgram: None,
   };
 
@@ -60,7 +60,7 @@ module Program = {
               ),
               () =>
               _getProgramMap(state)
-              |> ImmutableHashMap.has(shaderName)
+              |> TinyWonderCommonlib.ImmutableHashMap.has(shaderName)
               |> assertTrue
             )
           )
@@ -68,12 +68,12 @@ module Program = {
       Debug.getIsDebug(DebugData.getDebugData()),
     );
 
-    _getProgramMap(state) |> ImmutableHashMap.unsafeGet(shaderName);
+    _getProgramMap(state) |> TinyWonderCommonlib.ImmutableHashMap.unsafeGet(shaderName);
   };
 
   let setProgram = (shaderName, program, state) =>
     _setProgramMap(
-      _getProgramMap(state) |> ImmutableHashMap.set(shaderName, program),
+      _getProgramMap(state) |> TinyWonderCommonlib.ImmutableHashMap.set(shaderName, program),
       state,
     );
 
@@ -95,13 +95,13 @@ module Program = {
 
 module GLSLLocation = {
   let createGLSLLocationData = () => {
-    attributeLocationMap: ImmutableHashMap.createEmpty(),
-    uniformLocationMap: ImmutableHashMap.createEmpty(),
+    attributeLocationMap: TinyWonderCommonlib.ImmutableHashMap.createEmpty(),
+    uniformLocationMap: TinyWonderCommonlib.ImmutableHashMap.createEmpty(),
   };
 
   let _getOrCreateLocationMapOfShader = (shaderName, locationMap) =>
-    switch (locationMap |> ImmutableHashMap.get(shaderName)) {
-    | None => ImmutableHashMap.createEmpty()
+    switch (locationMap |> TinyWonderCommonlib.ImmutableHashMap.get(shaderName)) {
+    | None => TinyWonderCommonlib.ImmutableHashMap.createEmpty()
     | Some(locationMapOfShader) => locationMapOfShader
     };
 
@@ -121,12 +121,12 @@ module GLSLLocation = {
               ),
               () => {
                 _getAttributeLocationMap(state)
-                |> ImmutableHashMap.has(shaderName)
+                |> TinyWonderCommonlib.ImmutableHashMap.has(shaderName)
                 |> assertTrue;
 
                 _getAttributeLocationMap(state)
-                |> ImmutableHashMap.unsafeGet(shaderName)
-                |> ImmutableHashMap.has(fieldName)
+                |> TinyWonderCommonlib.ImmutableHashMap.unsafeGet(shaderName)
+                |> TinyWonderCommonlib.ImmutableHashMap.has(fieldName)
                 |> assertTrue;
               },
             )
@@ -136,8 +136,8 @@ module GLSLLocation = {
     );
 
     _getAttributeLocationMap(state)
-    |> ImmutableHashMap.unsafeGet(shaderName)
-    |> ImmutableHashMap.unsafeGet(fieldName);
+    |> TinyWonderCommonlib.ImmutableHashMap.unsafeGet(shaderName)
+    |> TinyWonderCommonlib.ImmutableHashMap.unsafeGet(fieldName);
   };
 
   let _getAttribLocation = (program, fieldName, gl) =>
@@ -170,8 +170,8 @@ module GLSLLocation = {
         attributeLocationMap:
           attributeLocationMap
           |> _getOrCreateLocationMapOfShader(shaderName)
-          |> ImmutableHashMap.set(fieldName, location)
-          |> ImmutableHashMap.set(shaderName, _, attributeLocationMap),
+          |> TinyWonderCommonlib.ImmutableHashMap.set(fieldName, location)
+          |> TinyWonderCommonlib.ImmutableHashMap.set(shaderName, _, attributeLocationMap),
       },
     };
   };
@@ -192,12 +192,12 @@ module GLSLLocation = {
               ),
               () => {
                 _getUniformLocationMap(state)
-                |> ImmutableHashMap.has(shaderName)
+                |> TinyWonderCommonlib.ImmutableHashMap.has(shaderName)
                 |> assertTrue;
 
                 _getUniformLocationMap(state)
-                |> ImmutableHashMap.unsafeGet(shaderName)
-                |> ImmutableHashMap.has(fieldName)
+                |> TinyWonderCommonlib.ImmutableHashMap.unsafeGet(shaderName)
+                |> TinyWonderCommonlib.ImmutableHashMap.has(fieldName)
                 |> assertTrue;
               },
             )
@@ -207,8 +207,8 @@ module GLSLLocation = {
     );
 
     _getUniformLocationMap(state)
-    |> ImmutableHashMap.unsafeGet(shaderName)
-    |> ImmutableHashMap.unsafeGet(fieldName);
+    |> TinyWonderCommonlib.ImmutableHashMap.unsafeGet(shaderName)
+    |> TinyWonderCommonlib.ImmutableHashMap.unsafeGet(fieldName);
   };
 
   let _getUniformLocation = (program, fieldName, gl) =>
@@ -242,8 +242,8 @@ module GLSLLocation = {
         uniformLocationMap:
           uniformLocationMap
           |> _getOrCreateLocationMapOfShader(shaderName)
-          |> ImmutableHashMap.set(fieldName, location)
-          |> ImmutableHashMap.set(shaderName, _, uniformLocationMap),
+          |> TinyWonderCommonlib.ImmutableHashMap.set(fieldName, location)
+          |> TinyWonderCommonlib.ImmutableHashMap.set(shaderName, _, uniformLocationMap),
       },
     };
   };
@@ -251,12 +251,12 @@ module GLSLLocation = {
 
 module GLSLSender = {
   let createGLSLSenderData = () => {
-    uniformCacheMap: ImmutableHashMap.createEmpty(),
+    uniformCacheMap: TinyWonderCommonlib.ImmutableHashMap.createEmpty(),
     lastBindedVAO: None,
   };
 
   let _fastGetCache = (shaderCacheMap, name: string) =>
-    shaderCacheMap |> ImmutableHashMap.fastGet(name);
+    shaderCacheMap |> TinyWonderCommonlib.ImmutableHashMap.fastGet(name);
 
   let _queryIsNotCacheWithCache = (cache, x, y, z) => {
     let isNotCached = ref(false);
@@ -276,7 +276,7 @@ module GLSLSender = {
   };
 
   let _setCache = (shaderCacheMap, name: string, record) =>
-    shaderCacheMap |> ImmutableHashMap.set(name, record);
+    shaderCacheMap |> TinyWonderCommonlib.ImmutableHashMap.set(name, record);
 
   let _isNotCacheVector3AndSetCache =
       (shaderCacheMap, name: string, (x: float, y: float, z: float)) => {
@@ -344,7 +344,7 @@ module GLSLSender = {
               ),
               () =>
               getUniformCacheMap(state)
-              |> ImmutableHashMap.has(shaderName)
+              |> TinyWonderCommonlib.ImmutableHashMap.has(shaderName)
               |> assertTrue
             )
           )
@@ -352,17 +352,17 @@ module GLSLSender = {
       Debug.getIsDebug(DebugData.getDebugData()),
     );
 
-    getUniformCacheMap(state) |> ImmutableHashMap.unsafeGet(shaderName);
+    getUniformCacheMap(state) |> TinyWonderCommonlib.ImmutableHashMap.unsafeGet(shaderName);
   };
 
   let setShaderCacheMap = (shaderName, shaderCacheMap, state) =>
     getUniformCacheMap(state)
-    |> ImmutableHashMap.set(shaderName, shaderCacheMap)
+    |> TinyWonderCommonlib.ImmutableHashMap.set(shaderName, shaderCacheMap)
     |> setUniformCacheMap(_, state);
 
   let createShaderCacheMap = (shaderName, state) =>
     getUniformCacheMap(state)
-    |> ImmutableHashMap.set(shaderName, ImmutableHashMap.createEmpty())
+    |> TinyWonderCommonlib.ImmutableHashMap.set(shaderName, TinyWonderCommonlib.ImmutableHashMap.createEmpty())
     |> setUniformCacheMap(_, state);
 
   let getLastSendedVAO = state => state.glslSenderData.lastBindedVAO;

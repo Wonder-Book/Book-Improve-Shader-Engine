@@ -7,14 +7,16 @@
         "bsb:watch": "bsb -clean-world -make-world -w",
         "bsb:build": "bsb -clean-world -make-world",
         "webpack:dev": "NODE_ENV=development webpack --config webpack.config.js",
-        "webpack": "gulp generateIndex && npm run webpack:dev"
+        "webpack": "gulp createShaderChunkSystemFile && gulp generateIndex && npm run webpack:dev"
     },
     "devDependencies": {
         "bs-platform": "^5.2.0",
         "webpack": "^4.17.1",
         "webpack-cli": "^3.1.0",
         "gulp": "^3.9.1",
-        "wonder-generate-index": "0.1.0"
+        "wonder-generate-index": "0.1.0",
+        "tiny-wonder-glsl-compiler": "^0.0.3",
+        "tiny-wonder-commonlib": "^0.0.1"
     },
     "dependencies": {}
 }

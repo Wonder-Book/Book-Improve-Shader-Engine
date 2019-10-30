@@ -10,4 +10,5 @@ let createState = () => {
   cameraData: Camera.createCameraData(),
   viewData: View.createViewData(),
   allGameObjectData: GameObject.createAllGameObjectData(),
+  glslChunkData: ShaderChunkSystem.create(),
 };

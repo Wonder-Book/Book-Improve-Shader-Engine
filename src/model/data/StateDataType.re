@@ -5,7 +5,7 @@ type deviceManagerData = {
 
 type glslData = {
   glslMap:
-    ImmutableHashMap.t2(
+    TinyWonderCommonlib.ImmutableHashMap.t2(
       ShaderWT.ShaderName.t,
       (
         (GLSLWT.VS.t, GLSLWT.FS.t),
@@ -16,7 +16,11 @@ type glslData = {
 };
 
 type programData = {
-  programMap: ImmutableHashMap.t2(ShaderWT.ShaderName.t, Gl.program),
+  programMap:
+    TinyWonderCommonlib.ImmutableHashMap.t2(
+      ShaderWT.ShaderName.t,
+      Gl.program,
+    ),
   lastUsedProgram: option(Gl.program),
 };
 
@@ -51,15 +55,21 @@ type canvas = DomExtend.htmlElement;
 type viewData = {canvas: option(canvas)};
 
 type attributeLocationMap =
-  ImmutableHashMap.t2(
+  TinyWonderCommonlib.ImmutableHashMap.t2(
     ShaderWT.ShaderName.t,
-    ImmutableHashMap.t2(ShaderWT.FieldName.t, Gl.attributeLocation),
+    TinyWonderCommonlib.ImmutableHashMap.t2(
+      ShaderWT.FieldName.t,
+      Gl.attributeLocation,
+    ),
   );
 
 type uniformLocationMap =
-  ImmutableHashMap.t2(
+  TinyWonderCommonlib.ImmutableHashMap.t2(
     ShaderWT.ShaderName.t,
-    ImmutableHashMap.t2(ShaderWT.FieldName.t, Gl.uniformLocation),
+    TinyWonderCommonlib.ImmutableHashMap.t2(
+      ShaderWT.FieldName.t,
+      Gl.uniformLocation,
+    ),
   );
 
 type glslLocationData = {
@@ -68,10 +78,17 @@ type glslLocationData = {
 };
 
 type shaderCacheMap =
-  ImmutableHashMap.t2(ShaderWT.FieldName.t, array(float));
+  TinyWonderCommonlib.ImmutableHashMap.t2(
+    ShaderWT.FieldName.t,
+    array(float),
+  );
 
 type glslSenderData = {
-  uniformCacheMap: ImmutableHashMap.t2(ShaderWT.ShaderName.t, shaderCacheMap),
+  uniformCacheMap:
+    TinyWonderCommonlib.ImmutableHashMap.t2(
+      ShaderWT.ShaderName.t,
+      shaderCacheMap,
+    ),
   lastBindedVAO: option(Gl.vao),
 };
 
@@ -87,6 +104,7 @@ type state = {
   programData,
   cameraData,
   allGameObjectData,
+  glslChunkData: ShaderChunkType.glslChunkData,
 };
 
 type stateData = {mutable state: option(state)};

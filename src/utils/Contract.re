@@ -97,7 +97,10 @@ let assertIsBool = (source: bool) =>
   );
 
 let assertNullableExist = (source: 'a) =>
-  _assert(!Null.isEmpty(source), "expect exist, but actual not");
+  _assert(
+    !TinyWonderCommonlib.NullUtils.isEmpty(source),
+    "expect exist, but actual not",
+  );
 
 let assertNullExist = (source: 'a) =>
   _assert(!Js.Null.test(source), "expect exist, but actual not");

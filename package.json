@@ -15,8 +15,9 @@
         "webpack-cli": "^3.1.0",
         "gulp": "^3.9.1",
         "wonder-generate-index": "0.1.0",
-        "tiny-wonder-glsl-compiler": "^0.0.3",
-        "tiny-wonder-commonlib": "^0.0.1"
+        "tiny-wonder-glsl-compiler": "^0.0.3"
     },
-    "dependencies": {}
+    "dependencies": {
+        "tiny-wonder-commonlib": "^0.0.1"
+    }
 }

@@ -60,5 +60,5 @@ let mapSuccess = (mapFunc, result) =>
 let getSuccessValue = (handleFailFunc: 'f => unit, result: t('s, 'f)): 's =>
   switch (result) {
   | Success(s) => s
-  | Fail(f) => handleFailFunc(f) |> ObjMagic.returnMagicValue
+  | Fail(f) => handleFailFunc(f) |> ObjMagicUtils.returnMagicValue
   };

@@ -77,12 +77,12 @@ let setLookAt = (eye, center, up, mat) => {
 };
 
 let buildPerspective = ((fovy, aspect, near, far), mat) =>
-  Contract.requireCheck(
+  ContractUtils.requireCheck(
     () =>
-      Contract.(
+      ContractUtils.(
         Operators.(
           test(
-            Log.buildAssertMessage(
+            LogUtils.buildAssertMessage(
               ~expect={j|frustum not be null|j},
               ~actual={j|be|j},
             ),

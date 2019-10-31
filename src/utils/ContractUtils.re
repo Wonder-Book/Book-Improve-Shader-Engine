@@ -1,9 +1,9 @@
 let _assert = (result: bool, message) =>
-  !result ? Error.raiseError(message) : ();
+  !result ? ErrorUtils.raiseError(message) : ();
 
 let test = (message, func) =>
   try (func()) {
-  | _ => Error.raiseError(message)
+  | _ => ErrorUtils.raiseError(message)
   };
 
 let requireCheck =
@@ -72,7 +72,7 @@ let ensureCheckByThrow =
     } :
     returnVal;
 
-let assertFailWithMessage = message => Error.raiseError(message);
+let assertFailWithMessage = message => ErrorUtils.raiseError(message);
 
 let assertFail = () => assertFailWithMessage("fail");
 

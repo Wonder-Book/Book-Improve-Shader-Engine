@@ -1,0 +1,95 @@
+[
+    {
+        "name": "common",
+        "variables": {
+            "uniforms": [
+                {
+                    "name": "u_vMatrix",
+                    "field": "vMatrix",
+                    "type": "mat4"
+                },
+                {
+                    "name": "u_pMatrix",
+                    "field": "pMatrix",
+                    "type": "mat4"
+                },
+                {
+                    "name": "u_mMatrix",
+                    "field": "mMatrix",
+                    "type": "mat4"
+                }
+            ]
+        }
+    },
+    {
+        "name": "vertex",
+        "variables": {
+            "attributes": [
+                {
+                    "name": "a_position",
+                    "buffer": 0,
+                    "type": "vec3"
+                }
+            ]
+        }
+    },
+    {
+        "name": "shader1",
+        "glsls": [
+            {
+                "type": "vs",
+                "name": "webgl1_shader1_vertex"
+            },
+            {
+                "type": "fs",
+                "name": "webgl1_shader1_fragment"
+            }
+        ],
+        "variables": {
+            "uniforms": [
+                {
+                    "name": "u_color0",
+                    "field": "color",
+                    "type": "float3"
+                }
+            ]
+        }
+    },
+    {
+        "name": "shader2",
+        "glsls": [
+            {
+                "type": "vs",
+                "name": "webgl1_shader2_vertex"
+            },
+            {
+                "type": "fs",
+                "name": "webgl1_shader2_fragment"
+            }
+        ],
+        "variables": {
+            "uniforms": [
+                {
+                    "name": "u_color0",
+                    "field": "color",
+                    "type": "float3"
+                },
+                {
+                    "name": "u_color1",
+                    "field": "color",
+                    "type": "float3"
+                }
+            ]
+        }
+    },
+    {
+        "name": "end",
+        "variables": {
+            "attributes": [
+                {
+                    "buffer": 1
+                }
+            ]
+        }
+    }
+]

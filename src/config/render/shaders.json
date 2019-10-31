@@ -1,0 +1,43 @@
+{
+    "groups": [
+        {
+            "name": "top",
+            "value": [
+                "common",
+                "vertex"
+            ]
+        }
+    ],
+    "shaders": [
+        {
+            "name": "shader1",
+            "shader_libs": [
+                {
+                    "type": "group",
+                    "name": "top"
+                },
+                {
+                    "name": "shader1"
+                },
+                {
+                    "name": "end"
+                }
+            ]
+        },
+        {
+            "name": "shader2",
+            "shader_libs": [
+                {
+                    "type": "group",
+                    "name": "top"
+                },
+                {
+                    "name": "shader2"
+                },
+                {
+                    "name": "end"
+                }
+            ]
+        }
+    ]
+}

@@ -105,6 +105,7 @@ type state = {
   cameraData,
   allGameObjectData,
   glslChunkData: ShaderChunkType.glslChunkData,
+  renderConfigData: option(RenderConfigDataType.renderConfigData),
 };
 
 type stateData = {mutable state: option(state)};

@@ -18,6 +18,9 @@
         "tiny-wonder-glsl-compiler": "^0.0.3"
     },
     "dependencies": {
-        "tiny-wonder-commonlib": "^0.0.1"
+        "tiny-wonder-commonlib": "^0.0.1",
+        "bs-fetch": "^0.3.0",
+        "wonder-bs-json": "^0.0.1",
+        "wonder-bs-most": "^0.0.3"
     }
 }

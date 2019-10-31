@@ -1,0 +1,1 @@
+let loadConfig = configDir => ConfigDataLoader.load(configDir);

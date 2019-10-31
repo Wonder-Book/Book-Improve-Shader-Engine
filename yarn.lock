@@ -2,6 +2,16 @@
 # yarn lockfile v1
 
 
+"@most/multicast@^1.2.4", "@most/multicast@^1.2.5":
+  version "1.3.0"
+  resolved "https://registry.npmjs.org/@most/multicast/-/multicast-1.3.0.tgz#e01574840df634478ac3fabd164c6e830fb3b966"
+  dependencies:
+    "@most/prelude" "^1.4.0"
+
+"@most/prelude@^1.4.0", "@most/prelude@^1.4.1":
+  version "1.7.3"
+  resolved "https://registry.npmjs.org/@most/prelude/-/prelude-1.7.3.tgz#51db3f3ba3ed65431b6eea89ecb0a31826af640c"
+
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
   resolved "https://registry.npmjs.org/@webassemblyjs/ast/-/ast-1.8.5.tgz#51b1c5fe6576a34953bf4b253df9f0d490d9e359"
@@ -394,6 +404,10 @@ browserify-zlib@^0.2.0:
   resolved "https://registry.npmjs.org/browserify-zlib/-/browserify-zlib-0.2.0.tgz#2869459d9aa3be245fe8fe2ca1f46e2e7f54d73f"
   dependencies:
     pako "~1.0.5"
+
+bs-fetch@^0.3.0:
+  version "0.3.1"
+  resolved "https://registry.npmjs.org/bs-fetch/-/bs-fetch-0.3.1.tgz#9c7d074b27e6bb2b9f2ec985964f32bcac49f79e"
 
 bs-glob@reasonml-community/bs-glob:
   version "0.1.1"
@@ -1912,6 +1926,22 @@ mkdirp@^0.5.0, mkdirp@^0.5.1:
   dependencies:
     minimist "0.0.8"
 
+most-subject@^5.3.0:
+  version "5.3.0"
+  resolved "https://registry.npmjs.org/most-subject/-/most-subject-5.3.0.tgz#3a6e3efd436fa93bd8b33c2a239c9088230a6102"
+  dependencies:
+    "@most/multicast" "^1.2.4"
+    "@most/prelude" "^1.4.1"
+    most "^1.1.0"
+
+most@^1.1.0, most@^1.7.0:
+  version "1.7.3"
+  resolved "https://registry.npmjs.org/most/-/most-1.7.3.tgz#406c31a66d73aa16957816fdf96965e27df84f1a"
+  dependencies:
+    "@most/multicast" "^1.2.5"
+    "@most/prelude" "^1.4.0"
+    symbol-observable "^1.0.2"
+
 move-concurrently@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/move-concurrently/-/move-concurrently-1.0.1.tgz#be2c005fda32e0b29af1f05d7c4b33214c701f92"
@@ -2802,6 +2832,10 @@ supports-color@^5.3.0:
   dependencies:
     has-flag "^3.0.0"
 
+symbol-observable@^1.0.2:
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/symbol-observable/-/symbol-observable-1.2.0.tgz#c22688aed4eab3cdc2dfeacbb561660560a00804"
+
 tapable@^1.0.0, tapable@^1.1.3:
   version "1.1.3"
   resolved "https://registry.npmjs.org/tapable/-/tapable-1.1.3.tgz#a1fccc06b58db61fd7a45da2da44f5f3a3e67ba2"
@@ -2874,9 +2908,9 @@ tiny-wonder-commonlib@^0.0.1, tiny-wonder-commonlib@latest:
   version "0.0.1"
   resolved "https://registry.npmjs.org/tiny-wonder-commonlib/-/tiny-wonder-commonlib-0.0.1.tgz#b2fa23a12d0831f5a1c0338ec208b15200fbbbb6"
 
-tiny-wonder-glsl-compiler@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.npmjs.org/tiny-wonder-glsl-compiler/-/tiny-wonder-glsl-compiler-0.0.2.tgz#70f4c5ce20a8200a3ac2111b698a887beab506d8"
+tiny-wonder-glsl-compiler@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.npmjs.org/tiny-wonder-glsl-compiler/-/tiny-wonder-glsl-compiler-0.0.3.tgz#39887397cc7d476690ffd23750b51eb7393c941c"
   dependencies:
     tiny-wonder-commonlib latest
 
@@ -3115,6 +3149,17 @@ wide-align@^1.1.0:
   resolved "https://registry.npmjs.org/wide-align/-/wide-align-1.1.3.tgz#ae074e6bdc0c14a431e804e624549c633b000457"
   dependencies:
     string-width "^1.0.2 || 2"
+
+wonder-bs-json@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.npmjs.org/wonder-bs-json/-/wonder-bs-json-0.0.1.tgz#e780dcfc5699642dd6a47f50ba50f074974faa80"
+
+wonder-bs-most@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.npmjs.org/wonder-bs-most/-/wonder-bs-most-0.0.3.tgz#571f2f9ddf13c80a756350d9d813694d08c640cf"
+  dependencies:
+    most "^1.7.0"
+    most-subject "^5.3.0"
 
 wonder-commonlib@0.2.13:
   version "0.2.13"

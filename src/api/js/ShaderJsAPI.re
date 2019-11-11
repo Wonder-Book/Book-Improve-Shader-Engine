@@ -1,11 +1,12 @@
-let addGLSL =
+/* TODO remove */
+/* let addGLSL =
     (
       shaderName,
       ((vs, fs), attributeFieldNameArr, uniformFieldNameArr),
       state,
     ) =>
   Shader.GLSL.addGLSL(
-    ShaderWT.ShaderName.create(shaderName),
+    ShaderWT.Shader.create(shaderName),
     (
       (GLSLWT.VS.create(vs), GLSLWT.FS.create(fs)),
       attributeFieldNameArr
@@ -16,4 +17,4 @@ let addGLSL =
       |> List.map(fieldName => ShaderWT.FieldName.create(fieldName)),
     ),
     state,
-  );
+  ); */

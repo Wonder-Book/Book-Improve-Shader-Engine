@@ -18,6 +18,8 @@ let addGameObjectData = GameObjectJsAPI.addGameObjectData;
 
 let createTriangleGeometryData = GameObjectJsAPI.createTriangleGeometryData;
 
+let loadConfig = LoadManagerJsAPI.loadConfig;
+
 let createIdentityMatrix = MatrixJsAPI.createIdentityMatrix;
 
 let setLookAt = MatrixJsAPI.setLookAt;
@@ -25,8 +27,6 @@ let setLookAt = MatrixJsAPI.setLookAt;
 let buildPerspective = MatrixJsAPI.buildPerspective;
 
 let setTranslation = MatrixJsAPI.setTranslation;
-
-let addGLSL = ShaderJsAPI.addGLSL;
 
 let setCanvasById = ViewJsAPI.setCanvasById;
 

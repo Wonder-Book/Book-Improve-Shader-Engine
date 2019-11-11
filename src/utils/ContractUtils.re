@@ -17,7 +17,10 @@ let requireCheck =
       }
     ) {
     | Js.Exn.Error(e) => Result.fail(e)
-    | err => Result.fail(Js.Exn.raiseError({j|unknown check error: $err|j}))
+    | err =>
+      Result.fail(
+        ErrorUtils.raiseErrorAndReturn({j|unknown check error: $err|j}),
+      )
     } :
     bodyFunc() |> Result.succeed;
 
@@ -32,7 +35,10 @@ let ensureCheck =
       }
     ) {
     | Js.Exn.Error(e) => Result.fail(e)
-    | err => Result.fail(Js.Exn.raiseError({j|unknown check error: $err|j}))
+    | err =>
+      Result.fail(
+        ErrorUtils.raiseErrorAndReturn({j|unknown check error: $err|j}),
+      )
     } :
     returnVal |> Result.succeed;
 
@@ -56,7 +62,10 @@ let requireAndEnsureCheck =
       }
     ) {
     | Js.Exn.Error(e) => Result.fail(e)
-    | err => Result.fail(Js.Exn.raiseError({j|unknown check error: $err|j}))
+    | err =>
+      Result.fail(
+        ErrorUtils.raiseErrorAndReturn({j|unknown check error: $err|j}),
+      )
     } :
     bodyFunc() |> Result.succeed;
 

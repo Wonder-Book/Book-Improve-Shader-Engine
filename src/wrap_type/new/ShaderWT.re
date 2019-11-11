@@ -1,12 +1,12 @@
-module ShaderName = {
+module Shader = {
   type t =
-    | ShaderName(string);
+    | Shader(string);
 
-  let create = value => ShaderName(value);
+  let create = value => Shader(value);
 
   let value = name =>
     switch (name) {
-    | ShaderName(value) => value
+    | Shader(value) => value
     };
 };
 

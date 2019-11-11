@@ -10,7 +10,7 @@ type shaderLibItem = {
 
 type shader = {
   name: string,
-  shaderLibs: array(shaderLibItem),
+  shaderLibItems: array(shaderLibItem),
 };
 
 type shaders = {
@@ -51,11 +51,11 @@ type shaderLib = {
   variables: option(variables),
 };
 
-type shaderLibs = array(shaderLib);
+/* type shaderLibs = array(shaderLib); */
 
 type renderConfigData = {
   shaders,
-  shaderLibs,
+  shaderLibs: array(shaderLib),
 };
 
 external intToBufferEnum: int => bufferEnum = "%identity";

@@ -3,7 +3,7 @@ open StateDataType;
 let createState = () => {
   deviceManagerData: DeviceManager.createDeviceManagerData(),
   gpuDetectData: GPUDetect.createGPUDetectData(),
-  glslData: Shader.GLSL.createGLSLData(),
+  /* glslData: Shader.GLSL.createGLSLData(), */
   glslLocationData: Shader.GLSLLocation.createGLSLLocationData(),
   glslSenderData: Shader.GLSLSender.createGLSLSenderData(),
   programData: Shader.Program.createProgramData(),

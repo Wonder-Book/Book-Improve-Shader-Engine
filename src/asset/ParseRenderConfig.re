@@ -28,7 +28,7 @@ let convertShadersToRecord = shaders => {
                 (
                   {
                     name: json |> field("name", string),
-                    shaderLibs:
+                    shaderLibItems:
                       json
                       |> field(
                            "shader_libs",

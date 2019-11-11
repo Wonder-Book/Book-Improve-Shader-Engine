@@ -3,22 +3,22 @@ type deviceManagerData = {
   clearColor: Color.Color4.t,
 };
 
-type glslData = {
+/* type glslData = {
   glslMap:
     TinyWonderCommonlib.ImmutableHashMap.t2(
-      ShaderWT.ShaderName.t,
+      ShaderWT.Shader.t,
       (
         (GLSLWT.VS.t, GLSLWT.FS.t),
         list(ShaderWT.FieldName.t),
         list(ShaderWT.FieldName.t),
       ),
     ),
-};
+}; */
 
 type programData = {
   programMap:
     TinyWonderCommonlib.ImmutableHashMap.t2(
-      ShaderWT.ShaderName.t,
+      ShaderWT.Shader.t,
       Gl.program,
     ),
   lastUsedProgram: option(Gl.program),
@@ -33,7 +33,7 @@ type geometryData = {
 type transformData = {mMatrix: CoordinateTransformationMatrix.Model.t};
 
 type materialData = {
-  shaderName: ShaderWT.ShaderName.t,
+  shaderName: ShaderWT.Shader.t,
   colors: list(Color.Color3.t),
 };
 
@@ -56,7 +56,7 @@ type viewData = {canvas: option(canvas)};
 
 type attributeLocationMap =
   TinyWonderCommonlib.ImmutableHashMap.t2(
-    ShaderWT.ShaderName.t,
+    ShaderWT.Shader.t,
     TinyWonderCommonlib.ImmutableHashMap.t2(
       ShaderWT.FieldName.t,
       Gl.attributeLocation,
@@ -65,7 +65,7 @@ type attributeLocationMap =
 
 type uniformLocationMap =
   TinyWonderCommonlib.ImmutableHashMap.t2(
-    ShaderWT.ShaderName.t,
+    ShaderWT.Shader.t,
     TinyWonderCommonlib.ImmutableHashMap.t2(
       ShaderWT.FieldName.t,
       Gl.uniformLocation,
@@ -86,7 +86,7 @@ type shaderCacheMap =
 type glslSenderData = {
   uniformCacheMap:
     TinyWonderCommonlib.ImmutableHashMap.t2(
-      ShaderWT.ShaderName.t,
+      ShaderWT.Shader.t,
       shaderCacheMap,
     ),
   lastBindedVAO: option(Gl.vao),
@@ -98,7 +98,7 @@ type state = {
   viewData,
   deviceManagerData,
   gpuDetectData,
-  glslData,
+  /* glslData, */
   glslLocationData,
   glslSenderData,
   programData,

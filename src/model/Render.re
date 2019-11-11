@@ -75,7 +75,7 @@ let _initVAOs = (gl, state) =>
                       geometryData.indices |> GeometryPoints.Indices.value,
                     ),
                     GameObject.Material.getShaderName(materialData)
-                    |> ShaderWT.ShaderName.value,
+                    |> ShaderWT.Shader.value,
                     gl,
                     vaoExt,
                     state,
@@ -102,7 +102,7 @@ let _changeGameObjectDataListToRenderDataList =
             |> Result.map(vao => {
                  let shaderName =
                    GameObject.Material.getShaderName(materialData)
-                   |> ShaderWT.ShaderName.value;
+                   |> ShaderWT.Shader.value;
 
                  {
                    mMatrix:

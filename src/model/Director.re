@@ -6,7 +6,10 @@ let initAll = (contextParam, state) =>
          state
          |> DeviceManager.setGl(Gl.getWebgl1Context(canvas, contextParam));
 
-       state |> GPUDetect.detect(gl) |> Shader.init;
+       state
+       |> GPUDetect.detect(gl)
+       |> Shader.GLSL.setPrecision
+       |> Shader.init;
      });
 
 let loopBody = state =>

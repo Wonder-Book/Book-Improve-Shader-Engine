@@ -33,8 +33,7 @@
         createEmpty()
         
 |> set("webgl1_shader2_vertex", _buildChunk(({|
-precision mediump float;
-// precision mediump int;
+
 |},{|
 
 |}),{|
@@ -48,8 +47,7 @@ gl_Position = u_pMatrix * u_vMatrix * u_mMatrix * vec4(a_position, 1.0);
 |}))
 
 |> set("webgl1_shader2_fragment", _buildChunk(({|
-precision mediump float;
-// precision mediump int;
+
 |},{|
 
 |}),{|
@@ -63,8 +61,7 @@ gl_FragColor = vec4(u_color0 * u_color1, 1.0);
 |}))
 
 |> set("webgl1_shader1_vertex", _buildChunk(({|
-precision mediump float;
-// precision mediump int;
+
 |},{|
 
 |}),{|
@@ -78,8 +75,7 @@ gl_Position = u_pMatrix * u_vMatrix * u_mMatrix * vec4(a_position, 1.0);
 |}))
 
 |> set("webgl1_shader1_fragment", _buildChunk(({|
-precision mediump float;
-// precision mediump int;
+
 |},{|
 
 |}),{|
@@ -106,9 +102,39 @@ gl_FragColor = vec4(u_color0, 1.0);
 gl_Position = u_pMatrix * u_vMatrix * u_mMatrix * vec4(a_position, 1.0);
 |}))
 
-|> set("mediump_fragment", _buildChunk(({|
+|> set("mediump", _buildChunk(({|
 precision mediump float;
-// precision mediump int;
+precision mediump int;
+|},{|
+
+|}),{|
+
+|},({|
+
+|},{|
+
+|}),{|
+
+|}))
+
+|> set("lowp", _buildChunk(({|
+precision lowp float;
+precision lowp int;
+|},{|
+
+|}),{|
+
+|},({|
+
+|},{|
+
+|}),{|
+
+|}))
+
+|> set("highp", _buildChunk(({|
+precision highp float;
+precision highp int;
 |},{|
 
 |}),{|

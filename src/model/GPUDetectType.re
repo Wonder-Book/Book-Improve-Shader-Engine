@@ -1,3 +1,8 @@
+type gpuPrecision =
+  | HIGHP
+  | MEDIUMP
+  | LOWP;
+
 type vaoExt = {
   .
   [@bs.meth] "createVertexArrayOES": unit => Gl.vao,

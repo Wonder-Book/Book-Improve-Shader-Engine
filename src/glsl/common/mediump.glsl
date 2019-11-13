@@ -1,4 +1,4 @@
 @top
 precision mediump float;
-// precision mediump int;
+precision mediump int;
 @end

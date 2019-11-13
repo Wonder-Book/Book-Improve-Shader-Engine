@@ -50,6 +50,12 @@ external shaderSource: (shader, string) => unit = "";
 
 [@bs.get] external getFragmentShader: webgl1Context => int = "FRAGMENT_SHADER";
 
+[@bs.get] external getHighFloat: webgl1Context => int = "HIGH_FLOAT";
+
+[@bs.get] external getMediumFloat: webgl1Context => int = "MEDIUM_FLOAT";
+
+/* [@bs.get] external getLowFloat: webgl1Context => int = "LOW_FLOAT"; */
+
 [@bs.send.pipe: webgl1Context]
 external getShaderParameter: (shader, int) => bool = "";
 
@@ -173,3 +179,6 @@ external getDepthBufferBit: webgl1Context => int = "DEPTH_BUFFER_BIT";
 
 [@bs.send.pipe: webgl1Context]
 external getExtension: string => Js.Nullable.t(extension) = "";
+
+[@bs.send.pipe: webgl1Context]
+external getShaderPrecisionFormat: (int, int) => precisionFormat = "";

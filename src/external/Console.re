@@ -1,0 +1,1 @@
+[@bs.val] [@bs.scope "console"] external warn1: 'a => unit = "warn";

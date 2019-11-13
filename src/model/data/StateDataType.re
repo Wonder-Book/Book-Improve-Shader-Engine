@@ -83,7 +83,12 @@ type uniformRenderObjectSendMaterialData = {
     shaderCacheMap,
 };
 
-type gpuDetectData = {vao: option(GPUDetectType.vaoExt)};
+type gpuDetectData = {
+  vao: option(GPUDetectType.vaoExt),
+  precision: option(GPUDetectType.gpuPrecision),
+};
+
+type glslData = {precision: option(string)};
 
 type uniformShaderSendData = {
   /* pos: Gl.uniformLocation, */
@@ -130,6 +135,7 @@ and state = {
   viewData,
   deviceManagerData,
   gpuDetectData,
+  glslData,
   glslSenderData,
   programData,
   cameraData,

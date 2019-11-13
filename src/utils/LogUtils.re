@@ -1,3 +1,5 @@
+let warn = msg => Console.warn1({j|$msg|j});
+
 let log = msg => Js.log({j|$msg|j});
 
 let getJsonStr = json => Js.Json.stringify(json |> Obj.magic);

@@ -1,6 +1,33 @@
 open StateDataType;
 
 module GLSL = {
+  let createGLSLData = () => {precision: None};
+
+  let _getPrecisionSource = ({gpuDetectData, glslChunkData}) => {
+    open ShaderChunkSystem;
+    open GPUDetectType;
+
+    let {precision}: StateDataType.gpuDetectData = gpuDetectData;
+    let default = getChunk("highp", glslChunkData).top;
+    switch (gpuDetectData.precision) {
+    | None => default
+    | Some(precision) =>
+      switch (precision) {
+      | HIGHP => getChunk("highp", glslChunkData).top
+      | MEDIUMP => getChunk("mediump", glslChunkData).top
+      | LOWP => getChunk("lowp", glslChunkData).top
+      | _ => default
+      }
+    };
+  };
+
+  let setPrecision = state => {
+    ...state,
+    glslData: {
+      precision: Some(_getPrecisionSource(state)),
+    },
+  };
+
   let getWebgl1MainBegin = () => "void main(void){\n";
 
   let getWebgl1MainEnd = () => "}\n";
@@ -205,19 +232,24 @@ module GLSL = {
         shaderLibs,
         /* execHandleFunc, */
         /* (glslRecord, glslChunkData), */
-        {glslChunkData},
+        {glslData, glslChunkData},
       ) => {
     open ShaderChunkType;
 
-    /* let {precision} = glslRecord; */
     let vs: glslChunk = _createEmptyChunk();
     let fs: glslChunk = _createEmptyChunk();
-    let vs = {...vs, body: vs.body ++ getWebgl1MainBegin()};
-    let fs = {...fs, body: fs.body ++ getWebgl1MainBegin()};
-    /* let precision = precision |> OptionService.unsafeGet; */
-    /* vs.top = precision ++ vs.top;
-       fs.top = precision ++ fs.top; */
-    /* shaderLibs */
+    let {precision}: StateDataType.glslData = glslData;
+    let precision = precision |> Option.unsafeGetByThrow;
+    let vs = {
+      ...vs,
+      top: precision ++ vs.top,
+      body: vs.body ++ getWebgl1MainBegin(),
+    };
+    let fs = {
+      ...fs,
+      top: precision ++ fs.top,
+      body: fs.body ++ getWebgl1MainBegin(),
+    };
     let (vs, fs) =
       _buildVsAndFs(
         (vs, fs),

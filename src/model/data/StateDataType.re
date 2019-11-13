@@ -39,11 +39,10 @@ type canvas = DomExtend.htmlElement;
 
 type viewData = {canvas: option(canvas)};
 
+type fieldName = string;
+
 type shaderCacheMap =
-  TinyWonderCommonlib.ImmutableHashMap.t2(
-    ShaderWT.FieldName.t,
-    array(float),
-  );
+  TinyWonderCommonlib.ImmutableHashMap.t2(fieldName, array(float));
 
 type attributeSendData = {
   /* pos: (Gl.attributeLocation), */

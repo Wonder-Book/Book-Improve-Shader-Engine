@@ -175,17 +175,19 @@ let _sendUniformShaderData = (gl, state) =>
                         (
                           stateResult,
                           {sendDataFunc}: StateDataType.uniformShaderSendData,
-                        ) =>
-                          state
-                          |> Shader.Program.use(
-                               gl,
-                               Shader.Program.unsafeGetProgram(
-                                 shaderName,
-                                 state,
-                               ),
-                             )
-                          |> sendDataFunc
-                          |> Result.map(() => state),
+                        ) => {
+                          let state =
+                            state
+                            |> Shader.Program.use(
+                                 gl,
+                                 Shader.Program.unsafeGetProgram(
+                                   shaderName,
+                                   state,
+                                 ),
+                               );
+
+                          state |> sendDataFunc |> Result.map(() => state);
+                        },
                         stateResult,
                       )
                  ),

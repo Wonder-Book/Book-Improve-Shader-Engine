@@ -1,5 +1,5 @@
 let createState = CreateData.createState;
 
-let unsafeGetState = StateData.unsafeGetState;
+let unsafeGetState = StateData.unsafeGetStateByThrow;
 
 let setState = StateData.setState;

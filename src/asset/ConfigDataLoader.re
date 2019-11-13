@@ -30,6 +30,7 @@ let load = configDir => {
            ...state,
            renderConfigData: Config.Render.create(recordArr |> Obj.magic),
          }
+         |> StateData.setState
          |> resolve
        ),
   );

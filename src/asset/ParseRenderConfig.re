@@ -97,12 +97,12 @@ let _convertVariableToRecord = json =>
                         |> array(json =>
                              {
                                name: json |> optional(field("name", string)),
+                               type_:
+                                 json |> optional(field("type", string)),
                                buffer:
                                  json
                                  |> field("buffer", int)
                                  |> intToBufferEnum,
-                               type_:
-                                 json |> optional(field("type", string)),
                              }
                            )
                       ),

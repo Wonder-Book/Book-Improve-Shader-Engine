@@ -249,8 +249,12 @@ module GLSL = {
       Config.Render.getAllShaderLibs(state),
     ));
 
-  /* TODO remove */
-  let getAllValidGLSLEntryList = state => [];
+  let getAllShaderNames = state =>
+    Config.Render.getAllShaders(state)
+    |> Result.map(shaders =>
+         shaders
+         |> Js.Array.map(({name}: RenderConfigDataType.shader) => name)
+       );
 };
 
 module Program = {
@@ -319,175 +323,29 @@ module Program = {
 };
 
 module GLSLLocation = {
-  let createGLSLLocationData = () => {
-    attributeLocationMap: TinyWonderCommonlib.ImmutableHashMap.createEmpty(),
-    uniformLocationMap: TinyWonderCommonlib.ImmutableHashMap.createEmpty(),
-  };
+  let isAttribLocationExist = pos => pos !== (-1);
 
-  let _getOrCreateLocationMapOfShader = (shaderName, locationMap) =>
-    switch (
-      locationMap |> TinyWonderCommonlib.ImmutableHashMap.get(shaderName)
-    ) {
-    | None => TinyWonderCommonlib.ImmutableHashMap.createEmpty()
-    | Some(locationMapOfShader) => locationMapOfShader
-    };
+  let getAttribLocation = (program, fieldName, gl) =>
+    Gl.getAttribLocation(program, fieldName, gl);
 
-  let _getAttributeLocationMap = state =>
-    state.glslLocationData.attributeLocationMap;
+  let isUniformLocationExist = pos => !Js.Null.test(pos);
 
-  let unsafeGetAttribLocation = (shaderName, fieldName, state) => {
-    ContractUtils.requireCheckByThrow(
-      () =>
-        ContractUtils.(
-          Operators.(
-            test(
-              LogUtils.buildAssertMessage(
-                ~expect=
-                  {j|attrib field: $fieldName exist in shader:$shaderName|j},
-                ~actual={j|not|j},
-              ),
-              () => {
-                _getAttributeLocationMap(state)
-                |> TinyWonderCommonlib.ImmutableHashMap.has(shaderName)
-                |> assertTrue;
-
-                _getAttributeLocationMap(state)
-                |> TinyWonderCommonlib.ImmutableHashMap.unsafeGet(shaderName)
-                |> TinyWonderCommonlib.ImmutableHashMap.has(fieldName)
-                |> assertTrue;
-              },
-            )
-          )
-        ),
-      Debug.getIsDebug(DebugData.getDebugData()),
-    );
-
-    _getAttributeLocationMap(state)
-    |> TinyWonderCommonlib.ImmutableHashMap.unsafeGet(shaderName)
-    |> TinyWonderCommonlib.ImmutableHashMap.unsafeGet(fieldName);
-  };
-
-  let _getAttribLocation = (program, fieldName, gl) =>
-    Gl.getAttribLocation(program, fieldName, gl)
-    |> ContractUtils.ensureCheckByThrow(
-         location =>
-           ContractUtils.(
-             Operators.(
-               test(
-                 LogUtils.buildAssertMessage(
-                   ~expect={j|attrib location of $fieldName exist|j},
-                   ~actual={j|not|j},
-                 ),
-                 () =>
-                 location <>= (-1)
-               )
-             )
-           ),
-         Debug.getIsDebug(DebugData.getDebugData()),
-       );
-
-  let setAttribLocation = (program, shaderName, fieldName, gl, state) => {
-    let attributeLocationMap = _getAttributeLocationMap(state);
-    let location = _getAttribLocation(program, fieldName, gl);
-
-    {
-      ...state,
-      glslLocationData: {
-        ...state.glslLocationData,
-        attributeLocationMap:
-          attributeLocationMap
-          |> _getOrCreateLocationMapOfShader(shaderName)
-          |> TinyWonderCommonlib.ImmutableHashMap.set(fieldName, location)
-          |> TinyWonderCommonlib.ImmutableHashMap.set(
-               shaderName,
-               _,
-               attributeLocationMap,
-             ),
-      },
-    };
-  };
-
-  let _getUniformLocationMap = state =>
-    state.glslLocationData.uniformLocationMap;
-
-  let unsafeGetUniformLocation = (shaderName, fieldName, state) => {
-    ContractUtils.requireCheckByThrow(
-      () =>
-        ContractUtils.(
-          Operators.(
-            test(
-              LogUtils.buildAssertMessage(
-                ~expect=
-                  {j|uniform field: $fieldName exist in shader:$shaderName|j},
-                ~actual={j|not|j},
-              ),
-              () => {
-                _getUniformLocationMap(state)
-                |> TinyWonderCommonlib.ImmutableHashMap.has(shaderName)
-                |> assertTrue;
-
-                _getUniformLocationMap(state)
-                |> TinyWonderCommonlib.ImmutableHashMap.unsafeGet(shaderName)
-                |> TinyWonderCommonlib.ImmutableHashMap.has(fieldName)
-                |> assertTrue;
-              },
-            )
-          )
-        ),
-      Debug.getIsDebug(DebugData.getDebugData()),
-    );
-
-    _getUniformLocationMap(state)
-    |> TinyWonderCommonlib.ImmutableHashMap.unsafeGet(shaderName)
-    |> TinyWonderCommonlib.ImmutableHashMap.unsafeGet(fieldName);
-  };
-
-  let _getUniformLocation = (program, fieldName, gl) =>
-    Gl.getUniformLocation(program, fieldName, gl)
-    |> ContractUtils.ensureCheckByThrow(
-         location =>
-           ContractUtils.(
-             Operators.(
-               test(
-                 LogUtils.buildAssertMessage(
-                   ~expect={j|uniform location of $fieldName exist|j},
-                   ~actual={j|not|j},
-                 ),
-                 () =>
-                 Obj.magic(location) |> assertNullExist
-               )
-             )
-           ),
-         Debug.getIsDebug(DebugData.getDebugData()),
-       );
-
-  let setUniformLocation = (program, shaderName, fieldName, gl, state) => {
-    let uniformLocationMap = _getUniformLocationMap(state);
-    let location =
-      _getUniformLocation(program, fieldName, gl) |> Js.Null.getUnsafe;
-
-    {
-      ...state,
-      glslLocationData: {
-        ...state.glslLocationData,
-        uniformLocationMap:
-          uniformLocationMap
-          |> _getOrCreateLocationMapOfShader(shaderName)
-          |> TinyWonderCommonlib.ImmutableHashMap.set(fieldName, location)
-          |> TinyWonderCommonlib.ImmutableHashMap.set(
-               shaderName,
-               _,
-               uniformLocationMap,
-             ),
-      },
-    };
-  };
+  let getUniformLocation = (program, fieldName, gl) =>
+    Gl.getUniformLocation(program, fieldName, gl);
 };
 
 module GLSLSender = {
   let createGLSLSenderData = () => {
     uniformCacheMap: TinyWonderCommonlib.ImmutableHashMap.createEmpty(),
     lastBindedVAO: None,
+    allAttributeSendDataMap:
+      TinyWonderCommonlib.ImmutableHashMap.createEmpty(),
+    allUniformRenderObjectSendModelDataMap:
+      TinyWonderCommonlib.ImmutableHashMap.createEmpty(),
+    allUniformRenderObjectSendMaterialDataMap:
+      TinyWonderCommonlib.ImmutableHashMap.createEmpty(),
+    allUniformShaderSendDataMap:
+      TinyWonderCommonlib.ImmutableHashMap.createEmpty(),
   };
 
   let _fastGetCache = (shaderCacheMap, name: string) =>
@@ -523,28 +381,12 @@ module GLSLSender = {
   };
 
   let sendFloat3 =
-      (gl, (name: string, pos: Gl.uniformLocation), valueArr, shaderCacheMap) => {
-    ContractUtils.requireCheckByThrow(
-      () =>
-        ContractUtils.(
-          Operators.(
-            test(
-              LogUtils.buildAssertMessage(
-                ~expect={j|valueArr.length === 3|j},
-                ~actual={j|not|j},
-              ),
-              () =>
-              valueArr |> Js.Array.length == 3
-            )
-          )
-        ),
-      Debug.getIsDebug(DebugData.getDebugData()),
-    );
-
-    let x = valueArr[0];
-    let y = valueArr[1];
-    let z = valueArr[2];
-
+      (
+        gl,
+        (name: string, pos: Gl.uniformLocation),
+        (x, y, z),
+        shaderCacheMap,
+      ) => {
     let (shaderCacheMap, isNotCache) =
       _isNotCacheVector3AndSetCache(shaderCacheMap, name, (x, y, z));
 
@@ -612,6 +454,347 @@ module GLSLSender = {
       ...state.glslSenderData,
       lastBindedVAO: Some(lastBindedVAO),
     },
+  };
+
+  module AttributeSendData = {
+    let getAllDataMap = state => state.glslSenderData.allAttributeSendDataMap;
+
+    let setAllDataMap = (map, state) => {
+      ...state,
+      glslSenderData: {
+        ...state.glslSenderData,
+        allAttributeSendDataMap: map,
+      },
+    };
+
+    let getAllData = (shaderName, state) =>
+      switch (
+        getAllDataMap(state)
+        |> TinyWonderCommonlib.ImmutableHashMap.get(shaderName)
+      ) {
+      | None => []
+      | Some(allData) => allData
+      };
+
+    let addAllData = ((shaderName, shaderLibs), gl, program, state) =>
+      getAllDataMap(state)
+      |> TinyWonderCommonlib.ImmutableHashMap.set(
+           shaderName,
+           shaderLibs
+           |> TinyWonderCommonlib.ArrayUtils.reduceOneParam(
+                (. sendDataList, {variables}: RenderConfigDataType.shaderLib) =>
+                  switch (variables) {
+                  | None => sendDataList
+                  | Some({attributes}) =>
+                    switch (attributes) {
+                    | None => sendDataList
+                    | Some(attributes) =>
+                      attributes
+                      |> TinyWonderCommonlib.ArrayUtils.reduceOneParam(
+                           (.
+                             sendDataList,
+                             {name, buffer}: RenderConfigDataType.attribute,
+                           ) =>
+                             switch (buffer) {
+                             | RenderConfigDataType.Vertex =>
+                               let name = Option.unsafeGetByThrow(name);
+
+                               switch (
+                                 GLSLLocation.getAttribLocation(
+                                   program,
+                                   name,
+                                   gl,
+                                 )
+                               ) {
+                               | pos
+                                   when
+                                     GLSLLocation.isAttribLocationExist(pos) => [
+                                   {
+                                     buffer,
+                                     sendDataFunc: buffer => {
+                                       Gl.bindBuffer(
+                                         Gl.getArrayBuffer(gl),
+                                         buffer,
+                                         gl,
+                                       );
+                                       Gl.vertexAttribPointer(
+                                         pos,
+                                         3,
+                                         Gl.getFloat(gl),
+                                         false,
+                                         0,
+                                         0,
+                                         gl,
+                                       );
+                                       Gl.enableVertexAttribArray(pos, gl);
+                                     },
+                                   },
+                                   ...sendDataList,
+                                 ]
+                               | _ => sendDataList
+                               };
+                             | RenderConfigDataType.Index => [
+                                 {buffer, sendDataFunc: _buffer => ()},
+                                 ...sendDataList,
+                               ]
+                             },
+                           sendDataList,
+                         )
+                    }
+                  },
+                [],
+              ),
+         )
+      |> setAllDataMap(_, state);
+  };
+
+  module UniformSendData = {
+    module ModelData = {
+      let getAllDataMap = state =>
+        state.glslSenderData.allUniformRenderObjectSendModelDataMap;
+
+      let setAllDataMap = (map, state) => {
+        ...state,
+        glslSenderData: {
+          ...state.glslSenderData,
+          allUniformRenderObjectSendModelDataMap: map,
+        },
+      };
+
+      let getAllData = (shaderName, state) =>
+        switch (
+          getAllDataMap(state)
+          |> TinyWonderCommonlib.ImmutableHashMap.get(shaderName)
+        ) {
+        | None => []
+        | Some(allData) => allData
+        };
+
+      let addAllData = ((name, field), gl, program, sendDataList) =>
+        /*! note: need judge pos before judge field! */
+        switch (GLSLLocation.getUniformLocation(program, name, gl)) {
+        | pos when GLSLLocation.isUniformLocationExist(pos) =>
+          let pos = Js.Null.getUnsafe(pos);
+
+          switch (field) {
+          | "mMatrix" => [
+              (
+                {
+                  sendDataFunc: matrixValue =>
+                    Gl.uniformMatrix4fv(pos, false, matrixValue, gl),
+                }: StateDataType.uniformRenderObjectSendModelData
+              ),
+              ...sendDataList,
+            ]
+          | _ => sendDataList
+          };
+        | _ => sendDataList
+        };
+    };
+
+    module MaterialData = {
+      let getAllDataMap = state =>
+        state.glslSenderData.allUniformRenderObjectSendMaterialDataMap;
+
+      let setAllDataMap = (map, state) => {
+        ...state,
+        glslSenderData: {
+          ...state.glslSenderData,
+          allUniformRenderObjectSendMaterialDataMap: map,
+        },
+      };
+
+      let getAllData = (shaderName, state) =>
+        switch (
+          getAllDataMap(state)
+          |> TinyWonderCommonlib.ImmutableHashMap.get(shaderName)
+        ) {
+        | None => []
+        | Some(allData) => allData
+        };
+
+      let addAllData = ((name, field), gl, program, sendDataList) =>
+        switch (GLSLLocation.getUniformLocation(program, name, gl)) {
+        | pos when GLSLLocation.isUniformLocationExist(pos) =>
+          let pos = Js.Null.getUnsafe(pos);
+
+          switch (field) {
+          | "color" => [
+              (
+                {
+                  sendDataFunc: (shaderCacheMap, data) =>
+                    shaderCacheMap
+                    |> sendFloat3(
+                         gl,
+                         (field, pos),
+                         data |> StateDataType.floatArrToFloatTuple3,
+                       ),
+                }: StateDataType.uniformRenderObjectSendMaterialData
+              ),
+              ...sendDataList,
+            ]
+          | _ => sendDataList
+          };
+        | _ => sendDataList
+        };
+    };
+
+    module ShaderData = {
+      let getAllDataMap = state =>
+        state.glslSenderData.allUniformShaderSendDataMap;
+
+      let setAllDataMap = (map, state) => {
+        ...state,
+        glslSenderData: {
+          ...state.glslSenderData,
+          allUniformShaderSendDataMap: map,
+        },
+      };
+
+      let getAllData = (shaderName, state) =>
+        switch (
+          getAllDataMap(state)
+          |> TinyWonderCommonlib.ImmutableHashMap.get(shaderName)
+        ) {
+        | None => []
+        | Some(allData) => allData
+        };
+
+      let addAllData = ((name, field), gl, program, sendDataList) =>
+        switch (GLSLLocation.getUniformLocation(program, name, gl)) {
+        | pos when GLSLLocation.isUniformLocationExist(pos) =>
+          let pos = Js.Null.getUnsafe(pos);
+
+          switch (field) {
+          | "vMatrix" => [
+              (
+                {
+                  sendDataFunc: state =>
+                    Camera.unsafeGetVMatrix(state)
+                    |> Result.map(vMatrix =>
+                         Gl.uniformMatrix4fv(
+                           pos,
+                           false,
+                           vMatrix
+                           |> CoordinateTransformationMatrix.View.getMatrixValue,
+                           gl,
+                         )
+                       ),
+                }: StateDataType.uniformShaderSendData
+              ),
+              ...sendDataList,
+            ]
+          | "pMatrix" => [
+              (
+                {
+                  sendDataFunc: state =>
+                    Camera.unsafeGetPMatrix(state)
+                    |> Result.map(pMatrix =>
+                         Gl.uniformMatrix4fv(
+                           pos,
+                           false,
+                           pMatrix
+                           |> CoordinateTransformationMatrix.Projection.getMatrixValue,
+                           gl,
+                         )
+                       ),
+                }: StateDataType.uniformShaderSendData
+              ),
+              ...sendDataList,
+            ]
+          | _ => sendDataList
+          };
+        | _ => sendDataList
+        };
+    };
+
+    let addAllData = ((shaderName, shaderLibs), gl, program, state) => {
+      let {
+        renderObjectSendModelDataList,
+        renderObjectSendMaterialDataList,
+        shaderSendDataList,
+      }: StateDataType.allSendUniformDataLists =
+        shaderLibs
+        |> TinyWonderCommonlib.ArrayUtils.reduceOneParam(
+             (.
+               allSendUniformDataLists: StateDataType.allSendUniformDataLists,
+               {variables}: RenderConfigDataType.shaderLib,
+             ) =>
+               switch (variables) {
+               | None => allSendUniformDataLists
+               | Some({uniforms}) =>
+                 switch (uniforms) {
+                 | None => allSendUniformDataLists
+                 | Some(uniforms) =>
+                   uniforms
+                   |> TinyWonderCommonlib.ArrayUtils.reduceOneParam(
+                        (.
+                          {
+                            renderObjectSendModelDataList,
+                            renderObjectSendMaterialDataList,
+                            shaderSendDataList,
+                          },
+                          {name, field, type_}: RenderConfigDataType.uniform,
+                        ) => {
+                          renderObjectSendModelDataList:
+                            ModelData.addAllData(
+                              (name, field),
+                              gl,
+                              program,
+                              renderObjectSendModelDataList,
+                            ),
+                          renderObjectSendMaterialDataList:
+                            MaterialData.addAllData(
+                              (name, field),
+                              gl,
+                              program,
+                              renderObjectSendMaterialDataList,
+                            ),
+                          shaderSendDataList:
+                            ShaderData.addAllData(
+                              (name, field),
+                              gl,
+                              program,
+                              shaderSendDataList,
+                            ),
+                        },
+                        allSendUniformDataLists,
+                      )
+                 }
+               },
+             {
+               renderObjectSendModelDataList: [],
+               renderObjectSendMaterialDataList: [],
+               shaderSendDataList: [],
+             }: StateDataType.allSendUniformDataLists,
+           );
+
+      let state =
+        ModelData.getAllDataMap(state)
+        |> TinyWonderCommonlib.ImmutableHashMap.set(
+             shaderName,
+             renderObjectSendModelDataList,
+           )
+        |> ModelData.setAllDataMap(_, state);
+
+      let state =
+        MaterialData.getAllDataMap(state)
+        |> TinyWonderCommonlib.ImmutableHashMap.set(
+             shaderName,
+             renderObjectSendMaterialDataList,
+           )
+        |> MaterialData.setAllDataMap(_, state);
+
+      let state =
+        ShaderData.getAllDataMap(state)
+        |> TinyWonderCommonlib.ImmutableHashMap.set(
+             shaderName,
+             shaderSendDataList,
+           )
+        |> ShaderData.setAllDataMap(_, state);
+
+      state;
+    };
   };
 };
 
@@ -750,11 +933,15 @@ let _changeAllGLSLDataToInitShaderDataArr =
             ) =>
               initShaderDataArr
               |> ArrayWT.push(
-                   Config.Render.getShaderLibDataArr(
-                     groups,
-                     shaderLibItems,
-                     shaderLibs,
-                   ),
+                   {
+                     shaderName: name,
+                     shaderLibs:
+                       Config.Render.getShaderLibDataArr(
+                         groups,
+                         shaderLibItems,
+                         shaderLibs,
+                       ),
+                   }: InitShaderDataType.initShaderData,
                  ),
             ArrayWT.createEmpty(),
           )
@@ -764,67 +951,39 @@ let init =
     (state: StateDataType.state): Result.t(StateDataType.state, Js.Exn.t) =>
   DeviceManager.unsafeGetGl(state)
   |> Result.bind(gl =>
-       GLSL.getAllGLSLData(state) |> _changeAllGLSLDataToInitShaderDataArr
-     )
-  |> Result.bind(initShaderDataArr =>
-       initShaderDataArr
-       |> Result.tryCatch(initShaderDataArr =>
+       GLSL.getAllGLSLData(state)
+       |> _changeAllGLSLDataToInitShaderDataArr
+       |> Result.bind(initShaderDataArr =>
             initShaderDataArr
-            |> TinyWonderCommonlib.ArrayUtils.reduceOneParam(
-                 (. state, shaderLibs) => {
-                   let (vs, fs) = GLSL.buildGLSLSource(shaderLibs, state);
+            |> Result.tryCatch(initShaderDataArr =>
+                 initShaderDataArr
+                 |> TinyWonderCommonlib.ArrayUtils.reduceOneParam(
+                      (.
+                        state,
+                        {shaderName, shaderLibs}: InitShaderDataType.initShaderData,
+                      ) => {
+                        let (vs, fs) =
+                          GLSL.buildGLSLSource(shaderLibs, state);
 
-                   /* TODO add to glsl sender data!!! */
+                        let program =
+                          gl
+                          |> Program.createProgram
+                          |> _initShader(vs, fs, gl);
 
-                   state;
-                 },
-                 state,
+                        state
+                        |> GLSLSender.AttributeSendData.addAllData(
+                             (shaderName, shaderLibs),
+                             gl,
+                             program,
+                           )
+                        |> GLSLSender.UniformSendData.addAllData(
+                             (shaderName, shaderLibs),
+                             gl,
+                             program,
+                           );
+                      },
+                      state,
+                    )
                )
           )
-     ) /* |> List.fold_left(
-            (
-              state,
-              {
-                shaderName,
-                vs,
-                fs,
-                attributeFieldNameList,
-                uniformFieldNameList,
-              }: InitShaderDataType.initShaderData,
-            ) => {
-              let program =
-                gl |> Program.createProgram |> _initShader(vs, fs, gl);
-
-              let state =
-                attributeFieldNameList
-                |> List.fold_left(
-                     (state, fieldName) =>
-                       state
-                       |> GLSLLocation.setAttribLocation(
-                            program,
-                            shaderName,
-                            fieldName,
-                            gl,
-                          ),
-                     state,
-                   );
-              let state =
-                uniformFieldNameList
-                |> List.fold_left(
-                     (state, fieldName) =>
-                       state
-                       |> GLSLLocation.setUniformLocation(
-                            program,
-                            shaderName,
-                            fieldName,
-                            gl,
-                          ),
-                     state,
-                   );
-
-              state
-              |> GLSLSender.createShaderCacheMap(shaderName)
-              |> Program.setProgram(shaderName, program);
-            },
-            state,
-          ) */;
+     );

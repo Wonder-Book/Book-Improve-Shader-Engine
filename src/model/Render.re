@@ -14,44 +14,35 @@ let _createVAOs =
 
   vaoExt##bindVertexArrayOES(. Js.Nullable.return(vao));
 
-  let vertexBuffer = Gl.createBuffer(gl);
+  Shader.GLSLSender.AttributeSendData.getAllData(shaderName, state)
+  |> List.iter(({buffer, sendDataFunc}: StateDataType.attributeSendData) =>
+       switch (buffer) {
+       | RenderConfigDataType.Vertex =>
+         let vertexBuffer = Gl.createBuffer(gl);
 
-  Gl.bindBuffer(Gl.getArrayBuffer(gl), vertexBuffer, gl);
+         Gl.bindBuffer(Gl.getArrayBuffer(gl), vertexBuffer, gl);
 
-  Gl.bufferFloat32Data(
-    Gl.getArrayBuffer(gl),
-    vertices,
-    Gl.getStaticDraw(gl),
-    gl,
-  );
+         Gl.bufferFloat32Data(
+           Gl.getArrayBuffer(gl),
+           vertices,
+           Gl.getStaticDraw(gl),
+           gl,
+         );
 
-  let positionLocation =
-    Shader.GLSLLocation.unsafeGetAttribLocation(
-      shaderName,
-      "a_position",
-      state,
-    );
-  Gl.vertexAttribPointer(
-    positionLocation,
-    3,
-    Gl.getFloat(gl),
-    false,
-    0,
-    0,
-    gl,
-  );
-  Gl.enableVertexAttribArray(positionLocation, gl);
+         sendDataFunc(vertexBuffer);
+       | RenderConfigDataType.Index =>
+         let indexBuffer = Gl.createBuffer(gl);
 
-  let indexBuffer = Gl.createBuffer(gl);
+         Gl.bindBuffer(Gl.getElementArrayBuffer(gl), indexBuffer, gl);
 
-  Gl.bindBuffer(Gl.getElementArrayBuffer(gl), indexBuffer, gl);
-
-  Gl.bufferUint16Data(
-    Gl.getElementArrayBuffer(gl),
-    indices,
-    Gl.getStaticDraw(gl),
-    gl,
-  );
+         Gl.bufferUint16Data(
+           Gl.getElementArrayBuffer(gl),
+           indices,
+           Gl.getStaticDraw(gl),
+           gl,
+         );
+       }
+     );
 
   vaoExt##bindVertexArrayOES(. Js.Nullable.null);
 
@@ -132,98 +123,75 @@ let _sendAttributeData = (vaoExt, vao, state) =>
     Shader.GLSLSender.setLastSendedVAO(vao, state);
   };
 
-let _sendCameraUniformData =
-    ((vMatrix, pMatrix), program, shaderName, gl, state) => {
-  let vMatrixLocation =
-    Shader.GLSLLocation.unsafeGetUniformLocation(
-      shaderName,
-      "u_vMatrix",
-      state,
-    );
-  let pMatrixLocation =
-    Shader.GLSLLocation.unsafeGetUniformLocation(
-      shaderName,
-      "u_pMatrix",
-      state,
-    );
+let _sendUniformModelData = (shaderName, mMatrix, state) =>
+  Shader.GLSLSender.UniformSendData.ModelData.getAllData(shaderName, state)
+  |> List.iter(
+       ({sendDataFunc}: StateDataType.uniformRenderObjectSendModelData) =>
+       sendDataFunc(mMatrix)
+     );
 
-  Gl.uniformMatrix4fv(vMatrixLocation, false, vMatrix, gl);
-  Gl.uniformMatrix4fv(pMatrixLocation, false, pMatrix, gl);
-};
-
-let _sendModelUniformData =
-    ((mMatrix, colors), program, shaderName, gl, state) => {
-  let mMatrixLocation =
-    Shader.GLSLLocation.unsafeGetUniformLocation(
-      shaderName,
-      "u_mMatrix",
-      state,
-    );
-
-  Gl.uniformMatrix4fv(mMatrixLocation, false, mMatrix, gl);
-
-  let (state, _) =
-    colors
-    |> List.fold_left(
-         ((state, index), (r, g, b)) => {
-           let colorFieldName = {j|u_color$index|j};
-           let colorLocation =
-             Shader.GLSLLocation.unsafeGetUniformLocation(
-               shaderName,
-               colorFieldName,
-               state,
-             );
-
-           (
-             Shader.GLSLSender.setShaderCacheMap(
-               shaderName,
-               Shader.GLSLSender.unsafeGetShaderCacheMap(shaderName, state)
-               |> Shader.GLSLSender.sendFloat3(
-                    gl,
-                    (colorFieldName, colorLocation),
-                    [|r, g, b|],
+let _sendUniformMaterialData = (shaderName, colors, state) =>
+  Shader.GLSLSender.UniformSendData.MaterialData.getAllData(shaderName, state)
+  |> List.fold_left(
+       (
+         state,
+         {sendDataFunc}: StateDataType.uniformRenderObjectSendMaterialData,
+       ) =>
+         colors
+         |> List.fold_left(
+              (state, color) =>
+                Shader.GLSLSender.setShaderCacheMap(
+                  shaderName,
+                  sendDataFunc(
+                    Shader.GLSLSender.unsafeGetShaderCacheMap(
+                      shaderName,
+                      state,
+                    ),
+                    color |> StateDataType.floatTuple3ToFloatArr,
                   ),
-               state,
-             ),
-             index |> succ,
-           );
-         },
-         (state, 0),
-       );
-
-  state;
-};
+                  state,
+                ),
+              state,
+            ),
+       state,
+     );
 
 let _sendUniformShaderData = (gl, state) =>
-  (Camera.unsafeGetVMatrix(state), Camera.unsafeGetPMatrix(state))
-  |> Tuple2.sequenceResultM
-  |> Result.map(((vMatrix, pMatrix)) => {
-       let (vMatrix, pMatrix) = (
-         vMatrix |> CoordinateTransformationMatrix.View.getMatrixValue,
-         pMatrix |> CoordinateTransformationMatrix.Projection.getMatrixValue,
-       );
-
-       Shader.GLSL.getAllValidGLSLEntryList(state)
-       |> List.fold_left(
-            (state, (shaderName, _)) => {
-              let program =
-                Shader.Program.unsafeGetProgram(shaderName, state);
-
-              let state = Shader.Program.use(gl, program, state);
-
-              _sendCameraUniformData(
-                (vMatrix, pMatrix),
-                program,
-                shaderName,
-                gl,
-                state,
-              );
-
-              state;
-            },
-            state,
-          );
-     });
+  Shader.GLSL.getAllShaderNames(state)
+  |> Result.bind(allShaderNames =>
+       allShaderNames
+       |> TinyWonderCommonlib.ArrayUtils.reduceOneParam(
+            (. stateResult, shaderName) =>
+              stateResult
+              |> Result.map(state =>
+                   Shader.GLSLSender.UniformSendData.ShaderData.getAllData(
+                     shaderName,
+                     state,
+                   )
+                 )
+              |> Result.bind(allData =>
+                   allData
+                   |> List.fold_left(
+                        (
+                          stateResult,
+                          {sendDataFunc}: StateDataType.uniformShaderSendData,
+                        ) =>
+                          state
+                          |> Shader.Program.use(
+                               gl,
+                               Shader.Program.unsafeGetProgram(
+                                 shaderName,
+                                 state,
+                               ),
+                             )
+                          |> sendDataFunc
+                          |> Result.map(() => state),
+                        stateResult,
+                      )
+                 ),
+            state |> Result.succeed,
+          )
+     );
 
 let render = (gl, state) =>
   state
@@ -254,16 +222,12 @@ let render = (gl, state) =>
                       ) => {
                         let state = Shader.Program.use(gl, program, state);
 
+                        state |> _sendUniformModelData(shaderName, mMatrix);
+
                         let state =
                           state
-                          |> _sendModelUniformData(
-                               (mMatrix, colors),
-                               program,
-                               shaderName,
-                               gl,
-                             );
-
-                        let state = _sendAttributeData(vaoExt, vao, state);
+                          |> _sendUniformMaterialData(shaderName, colors)
+                          |> _sendAttributeData(vaoExt, vao);
 
                         Gl.drawElements(
                           Gl.getTriangles(gl),

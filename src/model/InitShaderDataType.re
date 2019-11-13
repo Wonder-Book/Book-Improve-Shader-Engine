@@ -6,4 +6,7 @@
      uniformFieldNameList: list(string),
    }; */
 
-type initShaderData = array(RenderConfigDataType.shaderLib);
+type initShaderData = {
+  shaderName: string,
+  shaderLibs: array(RenderConfigDataType.shaderLib),
+};

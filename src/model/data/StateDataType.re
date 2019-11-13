@@ -3,24 +3,9 @@ type deviceManagerData = {
   clearColor: Color.Color4.t,
 };
 
-/* type glslData = {
-  glslMap:
-    TinyWonderCommonlib.ImmutableHashMap.t2(
-      ShaderWT.Shader.t,
-      (
-        (GLSLWT.VS.t, GLSLWT.FS.t),
-        list(ShaderWT.FieldName.t),
-        list(ShaderWT.FieldName.t),
-      ),
-    ),
-}; */
-
 type programData = {
   programMap:
-    TinyWonderCommonlib.ImmutableHashMap.t2(
-      ShaderWT.Shader.t,
-      Gl.program,
-    ),
+    TinyWonderCommonlib.ImmutableHashMap.t2(ShaderWT.Shader.t, Gl.program),
   lastUsedProgram: option(Gl.program),
 };
 
@@ -54,52 +39,98 @@ type canvas = DomExtend.htmlElement;
 
 type viewData = {canvas: option(canvas)};
 
-type attributeLocationMap =
-  TinyWonderCommonlib.ImmutableHashMap.t2(
-    ShaderWT.Shader.t,
-    TinyWonderCommonlib.ImmutableHashMap.t2(
-      ShaderWT.FieldName.t,
-      Gl.attributeLocation,
-    ),
-  );
-
-type uniformLocationMap =
-  TinyWonderCommonlib.ImmutableHashMap.t2(
-    ShaderWT.Shader.t,
-    TinyWonderCommonlib.ImmutableHashMap.t2(
-      ShaderWT.FieldName.t,
-      Gl.uniformLocation,
-    ),
-  );
-
-type glslLocationData = {
-  attributeLocationMap,
-  uniformLocationMap,
-};
-
 type shaderCacheMap =
   TinyWonderCommonlib.ImmutableHashMap.t2(
     ShaderWT.FieldName.t,
     array(float),
   );
 
-type glslSenderData = {
+type attributeSendData = {
+  /* pos: (Gl.attributeLocation), */
+  buffer: RenderConfigDataType.bufferEnum,
+  /* size, */
+  /* vao: Gl.vao, */
+  sendDataFunc:
+    /* (. Gl.webgl1Context, (Gl.attributeLocation, size), Gl.buffer) => */
+    Gl.buffer =>
+    /* SubStateSendRenderDataType.sendRenderDataSubState */
+    unit,
+};
+
+type uniformRenderObjectSendModelData = {
+  /* pos: Gl.uniformLocation, */
+  /* getDataFunc:
+       (. component, SubStateGetRenderDataType.getRenderDataSubState) =>
+       Float32Array.t,
+     sendDataFunc: (. webgl1Context, uniformLocation, Float32Array.t) => unit, */
+  sendDataFunc: Js.Typed_array.Float32Array.t => unit,
+};
+
+type uniformRenderObjectSendMaterialData = {
+  /* shaderCacheMap, */
+  /* fieldName: string,
+     pos: Gl.uniformLocation, */
+  /* getDataFunc:
+     (. component, SubStateGetRenderDataType.getRenderDataSubState) =>
+     array(float), */
+  sendDataFunc:
+    /* . Gl.webgl1Context, */
+    (
+      shaderCacheMap,
+      /* (string, Gl.uniformLocation), */
+      array(float)
+    ) =>
+    /* array((float, float, float)) */
+    shaderCacheMap,
+};
+
+type gpuDetectData = {vao: option(GPUDetectType.vaoExt)};
+
+type uniformShaderSendData = {
+  /* pos: Gl.uniformLocation, */
+  /* getDataFunc: ( state) => Js.Typed_array.Float32Array.t, */
+  sendDataFunc:
+    /* (. Gl.webgl1Context, Gl.uniformLocation, Js.Typed_array.Float32Array.t) => */
+    /* Js.Typed_array.Float32Array.t => unit, */
+    state => Result.t(unit, Js.Exn.t),
+}
+and allSendUniformDataLists = {
+  renderObjectSendModelDataList: list(uniformRenderObjectSendModelData),
+  renderObjectSendMaterialDataList: list(uniformRenderObjectSendMaterialData),
+  shaderSendDataList: list(uniformShaderSendData),
+}
+and glslSenderData = {
   uniformCacheMap:
     TinyWonderCommonlib.ImmutableHashMap.t2(
       ShaderWT.Shader.t,
       shaderCacheMap,
     ),
   lastBindedVAO: option(Gl.vao),
-};
-
-type gpuDetectData = {vao: option(GPUDetectType.vaoExt)};
-
-type state = {
+  allAttributeSendDataMap:
+    TinyWonderCommonlib.ImmutableHashMap.t2(
+      ShaderWT.Shader.t,
+      list(attributeSendData),
+    ),
+  allUniformRenderObjectSendModelDataMap:
+    TinyWonderCommonlib.ImmutableHashMap.t2(
+      ShaderWT.Shader.t,
+      list(uniformRenderObjectSendModelData),
+    ),
+  allUniformRenderObjectSendMaterialDataMap:
+    TinyWonderCommonlib.ImmutableHashMap.t2(
+      ShaderWT.Shader.t,
+      list(uniformRenderObjectSendMaterialData),
+    ),
+  allUniformShaderSendDataMap:
+    TinyWonderCommonlib.ImmutableHashMap.t2(
+      ShaderWT.Shader.t,
+      list(uniformShaderSendData),
+    ),
+}
+and state = {
   viewData,
   deviceManagerData,
   gpuDetectData,
-  /* glslData, */
-  glslLocationData,
   glslSenderData,
   programData,
   cameraData,
@@ -109,3 +140,9 @@ type state = {
 };
 
 type stateData = {mutable state: option(state)};
+
+external floatArrToFloatTuple3: array(float) => (float, float, float) =
+  "%identity";
+
+external floatTuple3ToFloatArr: ((float, float, float)) => array(float) =
+  "%identity";

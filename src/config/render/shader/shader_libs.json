@@ -49,7 +49,7 @@
             "uniforms": [
                 {
                     "name": "u_color0",
-                    "field": "color",
+                    "field": "color0",
                     "type": "float3"
                 }
             ]
@@ -71,12 +71,12 @@
             "uniforms": [
                 {
                     "name": "u_color0",
-                    "field": "color",
+                    "field": "color0",
                     "type": "float3"
                 },
                 {
                     "name": "u_color1",
-                    "field": "color",
+                    "field": "color1",
                     "type": "float3"
                 }
             ]

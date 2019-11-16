@@ -77,7 +77,7 @@ type uniformRenderObjectSendMaterialData = {
     (
       shaderCacheMap,
       /* (string, Gl.uniformLocation), */
-      array(float)
+      RenderDataType.colors
     ) =>
     /* array((float, float, float)) */
     shaderCacheMap,

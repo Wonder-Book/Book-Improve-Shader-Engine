@@ -137,22 +137,14 @@ let _sendUniformMaterialData = (shaderName, colors, state) =>
          state,
          {sendDataFunc}: StateDataType.uniformRenderObjectSendMaterialData,
        ) =>
-         colors
-         |> List.fold_left(
-              (state, color) =>
-                Shader.GLSLSender.setShaderCacheMap(
-                  shaderName,
-                  sendDataFunc(
-                    Shader.GLSLSender.unsafeGetShaderCacheMap(
-                      shaderName,
-                      state,
-                    ),
-                    color |> StateDataType.floatTuple3ToFloatArr,
-                  ),
-                  state,
-                ),
-              state,
-            ),
+         Shader.GLSLSender.setShaderCacheMap(
+           shaderName,
+           sendDataFunc(
+             Shader.GLSLSender.unsafeGetShaderCacheMap(shaderName, state),
+             colors,
+           ),
+           state,
+         ),
        state,
      );
 

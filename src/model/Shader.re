@@ -366,8 +366,13 @@ module GLSLLocation = {
 
   let isUniformLocationExist = pos => !Js.Null.test(pos);
 
-  let getUniformLocation = (program, fieldName, gl) =>
-    Gl.getUniformLocation(program, fieldName, gl);
+  let getUniformLocation = (program, fieldName, gl) => {
+    let location = Gl.getUniformLocation(program, fieldName, gl);
+
+    Obj.magic(location)##fieldName #= fieldName;
+
+    location;
+  };
 };
 
 module GLSLSender = {
@@ -651,7 +656,7 @@ module GLSLSender = {
         | Some(allData) => allData
         };
 
-      let _isMaterialData = field => field === "color";
+      let _isMaterialData = field => field === "color0" || field === "color1";
 
       let addAllData = ((name, field), gl, program, sendDataList) =>
         _isMaterialData(field) ?
@@ -660,16 +665,22 @@ module GLSLSender = {
             let pos = Js.Null.getUnsafe(pos);
 
             switch (field) {
-            | "color" => [
+            | "color0" => [
                 (
                   {
-                    sendDataFunc: (shaderCacheMap, data) =>
+                    sendDataFunc: (shaderCacheMap, colors) =>
                       shaderCacheMap
-                      |> sendFloat3(
-                           gl,
-                           (field, pos),
-                           data |> StateDataType.floatArrToFloatTuple3,
-                         ),
+                      |> sendFloat3(gl, (field, pos), colors |> List.hd),
+                  }: StateDataType.uniformRenderObjectSendMaterialData
+                ),
+                ...sendDataList,
+              ]
+            | "color1" => [
+                (
+                  {
+                    sendDataFunc: (shaderCacheMap, colors) =>
+                      shaderCacheMap
+                      |> sendFloat3(gl, (field, pos), colors->List.nth(1)),
                   }: StateDataType.uniformRenderObjectSendMaterialData
                 ),
                 ...sendDataList,

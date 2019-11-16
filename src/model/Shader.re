@@ -590,6 +590,18 @@ module GLSLSender = {
   };
 
   module UniformSendData = {
+    module DataCommon = {
+      let addData =
+          (program, name, gl, oldSendDataList, buildNewSendDataListFunc) =>
+        switch (GLSLLocation.getUniformLocation(program, name, gl)) {
+        | pos when GLSLLocation.isUniformLocationExist(pos) =>
+          let pos = Js.Null.getUnsafe(pos);
+
+          buildNewSendDataListFunc(pos);
+        | _ => oldSendDataList
+        };
+    };
+
     module ModelData = {
       let getAllDataMap = state =>
         state.glslSenderData.allUniformRenderObjectSendModelDataMap;
@@ -611,28 +623,22 @@ module GLSLSender = {
         | Some(allData) => allData
         };
 
-      let _isModelData = field => field === "mMatrix";
-
       let addAllData = ((name, field), gl, program, sendDataList) =>
-        _isModelData(field) ?
-          switch (GLSLLocation.getUniformLocation(program, name, gl)) {
-          | pos when GLSLLocation.isUniformLocationExist(pos) =>
-            let pos = Js.Null.getUnsafe(pos);
-
-            switch (field) {
-            | "mMatrix" => [
-                (
-                  {
-                    sendDataFunc: matrixValue =>
-                      Gl.uniformMatrix4fv(pos, false, matrixValue, gl),
-                  }: StateDataType.uniformRenderObjectSendModelData
-                ),
-                ...sendDataList,
-              ]
-            };
-          | _ => sendDataList
-          } :
-          sendDataList;
+        switch (field) {
+        | "mMatrix" =>
+          DataCommon.addData(program, name, gl, sendDataList, pos =>
+            [
+              (
+                {
+                  sendDataFunc: matrixValue =>
+                    Gl.uniformMatrix4fv(pos, false, matrixValue, gl),
+                }: StateDataType.uniformRenderObjectSendModelData
+              ),
+              ...sendDataList,
+            ]
+          )
+        | _ => sendDataList
+        };
     };
 
     module MaterialData = {
@@ -656,39 +662,36 @@ module GLSLSender = {
         | Some(allData) => allData
         };
 
-      let _isMaterialData = field => field === "color0" || field === "color1";
-
       let addAllData = ((name, field), gl, program, sendDataList) =>
-        _isMaterialData(field) ?
-          switch (GLSLLocation.getUniformLocation(program, name, gl)) {
-          | pos when GLSLLocation.isUniformLocationExist(pos) =>
-            let pos = Js.Null.getUnsafe(pos);
-
-            switch (field) {
-            | "color0" => [
-                (
-                  {
-                    sendDataFunc: (shaderCacheMap, colors) =>
-                      shaderCacheMap
-                      |> sendFloat3(gl, (field, pos), colors |> List.hd),
-                  }: StateDataType.uniformRenderObjectSendMaterialData
-                ),
-                ...sendDataList,
-              ]
-            | "color1" => [
-                (
-                  {
-                    sendDataFunc: (shaderCacheMap, colors) =>
-                      shaderCacheMap
-                      |> sendFloat3(gl, (field, pos), colors->List.nth(1)),
-                  }: StateDataType.uniformRenderObjectSendMaterialData
-                ),
-                ...sendDataList,
-              ]
-            };
-          | _ => sendDataList
-          } :
-          sendDataList;
+        switch (field) {
+        | "color0" =>
+          DataCommon.addData(program, name, gl, sendDataList, pos =>
+            [
+              (
+                {
+                  sendDataFunc: (shaderCacheMap, colors) =>
+                    shaderCacheMap
+                    |> sendFloat3(gl, (field, pos), colors |> List.hd),
+                }: StateDataType.uniformRenderObjectSendMaterialData
+              ),
+              ...sendDataList,
+            ]
+          )
+        | "color1" =>
+          DataCommon.addData(program, name, gl, sendDataList, pos =>
+            [
+              (
+                {
+                  sendDataFunc: (shaderCacheMap, colors) =>
+                    shaderCacheMap
+                    |> sendFloat3(gl, (field, pos), colors->List.nth(1)),
+                }: StateDataType.uniformRenderObjectSendMaterialData
+              ),
+              ...sendDataList,
+            ]
+          )
+        | _ => sendDataList
+        };
     };
 
     module ShaderData = {
@@ -712,55 +715,52 @@ module GLSLSender = {
         | Some(allData) => allData
         };
 
-      let _isShaderData = field => field === "vMatrix" || field === "pMatrix";
-
       let addAllData = ((name, field), gl, program, sendDataList) =>
-        _isShaderData(field) ?
-          switch (GLSLLocation.getUniformLocation(program, name, gl)) {
-          | pos when GLSLLocation.isUniformLocationExist(pos) =>
-            let pos = Js.Null.getUnsafe(pos);
-
-            switch (field) {
-            | "vMatrix" => [
-                (
-                  {
-                    sendDataFunc: state =>
-                      Camera.unsafeGetVMatrix(state)
-                      |> Result.map(vMatrix =>
-                           Gl.uniformMatrix4fv(
-                             pos,
-                             false,
-                             vMatrix
-                             |> CoordinateTransformationMatrix.View.getMatrixValue,
-                             gl,
-                           )
-                         ),
-                  }: StateDataType.uniformShaderSendData
-                ),
-                ...sendDataList,
-              ]
-            | "pMatrix" => [
-                (
-                  {
-                    sendDataFunc: state =>
-                      Camera.unsafeGetPMatrix(state)
-                      |> Result.map(pMatrix =>
-                           Gl.uniformMatrix4fv(
-                             pos,
-                             false,
-                             pMatrix
-                             |> CoordinateTransformationMatrix.Projection.getMatrixValue,
-                             gl,
-                           )
-                         ),
-                  }: StateDataType.uniformShaderSendData
-                ),
-                ...sendDataList,
-              ]
-            };
-          | _ => sendDataList
-          } :
-          sendDataList;
+        switch (field) {
+        | "vMatrix" =>
+          DataCommon.addData(program, name, gl, sendDataList, pos =>
+            [
+              (
+                {
+                  sendDataFunc: state =>
+                    Camera.unsafeGetVMatrix(state)
+                    |> Result.map(vMatrix =>
+                         Gl.uniformMatrix4fv(
+                           pos,
+                           false,
+                           vMatrix
+                           |> CoordinateTransformationMatrix.View.getMatrixValue,
+                           gl,
+                         )
+                       ),
+                }: StateDataType.uniformShaderSendData
+              ),
+              ...sendDataList,
+            ]
+          )
+        | "pMatrix" =>
+          DataCommon.addData(program, name, gl, sendDataList, pos =>
+            [
+              (
+                {
+                  sendDataFunc: state =>
+                    Camera.unsafeGetPMatrix(state)
+                    |> Result.map(pMatrix =>
+                         Gl.uniformMatrix4fv(
+                           pos,
+                           false,
+                           pMatrix
+                           |> CoordinateTransformationMatrix.Projection.getMatrixValue,
+                           gl,
+                         )
+                       ),
+                }: StateDataType.uniformShaderSendData
+              ),
+              ...sendDataList,
+            ]
+          )
+        | _ => sendDataList
+        };
     };
 
     let addAllData = ((shaderName, shaderLibs), gl, program, state) => {

@@ -369,8 +369,6 @@ module GLSLLocation = {
   let getUniformLocation = (program, fieldName, gl) => {
     let location = Gl.getUniformLocation(program, fieldName, gl);
 
-    Obj.magic(location)##fieldName #= fieldName;
-
     location;
   };
 };

@@ -37,7 +37,7 @@ module Render = {
           )
         ),
       () =>
-        ArrayWT.unsafeFindFirst(
+        ArrayWT.unsafeFindFirstByNull(
           shaderLibs, shaderLibName, (item: RenderConfigDataType.shaderLib) =>
           item.name === shaderLibName
         ),
@@ -80,7 +80,7 @@ module Render = {
         );
       },
       Debug.getIsDebug(DebugData.getDebugData()),
-      ArrayWT.unsafeFindFirst(
+      ArrayWT.unsafeFindFirstByNull(
         groups, name, (item: RenderConfigDataType.shaderMapData) =>
         item.name === name
       ),

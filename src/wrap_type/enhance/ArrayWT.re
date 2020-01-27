@@ -1,5 +1,5 @@
 [@bs.send.pipe: array('a)]
-external unsafeFind: ('a => [@bs.uncurry] bool) => 'a = "find";
+external unsafeFindByNull: ('a => [@bs.uncurry] bool) => 'a = "find";
 
 let createEmpty = () => [||];
 
@@ -10,8 +10,8 @@ let push = (item, arr) => {
 
 // let unsafeGetFirst = arr => Array.unsafe_get(arr, 0);
 
-let unsafeFindFirst = (arr: array('a), targetValue, func) =>
-  arr |> unsafeFind(func);
+let unsafeFindFirstByNull = (arr: array('a), targetValue, func) =>
+  arr |> unsafeFindByNull(func);
 /* |> WonderLog.Contract.ensureCheck(
      first => {
        open WonderLog;

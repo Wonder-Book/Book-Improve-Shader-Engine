@@ -982,26 +982,28 @@ let _changeAllGLSLDataToInitShaderDataArr =
     (allGLSLData)
     : Result.t(array(InitShaderDataType.initShaderData), Js.Exn.t) =>
   allGLSLData
-  |> Result.map(((groups, shaders, shaderLibs)) =>
+  |> Result.bind(((groups, shaders, shaderLibs)) =>
        shaders
        |> TinyWonderCommonlib.ArrayUtils.reduceOneParam(
             (.
-              initShaderDataArr,
+              initShaderDataArrResult,
               {name, shaderLibItems}: RenderConfigDataType.shader,
             ) =>
-              initShaderDataArr
-              |> ArrayWT.push(
-                   {
-                     shaderName: name,
-                     shaderLibs:
-                       Config.Render.getShaderLibDataArr(
-                         groups,
-                         shaderLibItems,
-                         shaderLibs,
-                       ),
-                   }: InitShaderDataType.initShaderData,
-                 ),
-            ArrayWT.createEmpty(),
+              initShaderDataArrResult
+              |> Result.bind(initShaderDataArr => {
+                   Config.Render.getShaderLibDataArr(
+                     groups,
+                     shaderLibItems,
+                     shaderLibs,
+                   )
+                   |> Result.map(shaderLibDataArr => {
+                        initShaderDataArr
+                        |> ArrayWT.push(
+                             {shaderName: name, shaderLibs: shaderLibDataArr}: InitShaderDataType.initShaderData,
+                           )
+                      })
+                 }),
+            ArrayWT.createEmpty() |> Result.succeed,
           )
      );
 

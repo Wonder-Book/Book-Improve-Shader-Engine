@@ -17,12 +17,12 @@ module Render = {
   let getAllShaderLibs = state =>
     state |> _unsafeGetData |> Result.map(({shaderLibs}) => shaderLibs);
 
-  let _findFirstShaderDataByThrow =
+  let _findFirstShaderData =
       (
         shaderLibName: string,
         shaderLibs: array(RenderConfigDataType.shaderLib),
       ) => {
-    ContractUtils.requireCheck(
+    ContractUtils.requireAndEnsureCheckReturnResult(
       () =>
         ContractUtils.(
           Operators.(
@@ -36,67 +36,64 @@ module Render = {
             )
           )
         ),
+      () =>
+        ArrayWT.unsafeFindFirst(
+          shaderLibs, shaderLibName, (item: RenderConfigDataType.shaderLib) =>
+          item.name === shaderLibName
+        ),
+      r => {
+        open ContractUtils;
+        open Operators;
+
+        let arrJson = LogUtils.getJsonStr(shaderLibs);
+        let target = shaderLibName;
+
+        test(
+          LogUtils.buildAssertMessage(
+            ~expect={j|find $target in $arrJson|j},
+            ~actual={j|not|j},
+          ),
+          () =>
+          r |> ObjMagicUtils.returnMagicValue |> assertNullableExist
+        );
+      },
       Debug.getIsDebug(DebugData.getDebugData()),
     );
-
-    ArrayWT.unsafeFindFirst(
-      shaderLibs, shaderLibName, (item: RenderConfigDataType.shaderLib) =>
-      item.name === shaderLibName
-    )
-    |> ContractUtils.ensureCheck(
-         r => {
-           open ContractUtils;
-           open Operators;
-
-           let arrJson = LogUtils.getJsonStr(shaderLibs);
-           let target = shaderLibName;
-
-           test(
-             LogUtils.buildAssertMessage(
-               ~expect={j|find $target in $arrJson|j},
-               ~actual={j|not|j},
-             ),
-             () =>
-             r |> ObjMagicUtils.returnMagicValue |> assertNullableExist
-           );
-         },
-         Debug.getIsDebug(DebugData.getDebugData()),
-       );
   };
 
-  let _unsafeFindGroupByThrow = (name, groups) =>
-    ArrayWT.unsafeFindFirst(
-      groups, name, (item: RenderConfigDataType.shaderMapData) =>
-      item.name === name
-    )
-    |> ContractUtils.ensureCheck(
-         r => {
-           open ContractUtils;
-           open Operators;
+  let _unsafeFindGroup = (name, groups) =>
+    ContractUtils.ensureCheckReturnResult(
+      r => {
+        open ContractUtils;
+        open Operators;
 
-           let arrJson = LogUtils.getJsonStr(groups);
-           let target = name;
+        let arrJson = LogUtils.getJsonStr(groups);
+        let target = name;
 
-           test(
-             LogUtils.buildAssertMessage(
-               ~expect={j|find $target in $arrJson|j},
-               ~actual={j|not|j},
-             ),
-             () =>
-             r |> ObjMagicUtils.returnMagicValue |> assertNullableExist
-           );
-         },
-         Debug.getIsDebug(DebugData.getDebugData()),
-       );
+        test(
+          LogUtils.buildAssertMessage(
+            ~expect={j|find $target in $arrJson|j},
+            ~actual={j|not|j},
+          ),
+          () =>
+          r |> ObjMagicUtils.returnMagicValue |> assertNullableExist
+        );
+      },
+      Debug.getIsDebug(DebugData.getDebugData()),
+      ArrayWT.unsafeFindFirst(
+        groups, name, (item: RenderConfigDataType.shaderMapData) =>
+        item.name === name
+      ),
+    );
 
-  let _getShaderLibDataArrByGroupByThrow =
+  let _getShaderLibDataArrByGroup =
       (
         groups: array(RenderConfigDataType.shaderMapData),
         name,
         shaderLibs,
         resultDataArr,
       ) => {
-    ContractUtils.requireCheck(
+    ContractUtils.requireCheckWithResultBodyFuncReturnResult(
       () =>
         ContractUtils.(
           Operators.(
@@ -110,67 +107,37 @@ module Render = {
             )
           )
         ),
+      () => {
+        _unsafeFindGroup(name, groups)
+        |> Result.bind(({value}) => {
+             value
+             |> ArrayWT.traverseResultM((name: string) => {
+                  _findFirstShaderData(name, shaderLibs)
+                })
+           })
+        |> Result.map(resultData => {
+             Js.Array.concat(resultData, resultDataArr)
+           })
+      },
       Debug.getIsDebug(DebugData.getDebugData()),
-    );
-
-    Js.Array.concat(
-      _unsafeFindGroupByThrow(name, groups).value
-      |> Js.Array.map((name: string) =>
-           _findFirstShaderDataByThrow(name, shaderLibs)
-         ),
-      resultDataArr,
     );
   };
 
-  let _getShaderLibDataArrByTypeByThrow =
-      /* (
-           materialIndex,
-           type_,
-           groups: array( shaderMapData),
-           name,
-           isSourceInstance,
-           isSupportInstance,
-         ),
-         (
-           shaderLibs,
-           staticBranchs: array(shaderMapData),
-           dynamicBranchs,
-           state,
-         ), */
-      /* (getMaterialShaderLibDataArrByStaticBranchFunc, isPassFunc), */
-      /* resultDataArr, */
+  let _getShaderLibDataArrByType =
       (type_, groups, name, shaderLibs, resultDataArr) =>
     switch (type_) {
     | "group" =>
-      _getShaderLibDataArrByGroupByThrow(
-        groups,
-        name,
-        shaderLibs,
-        resultDataArr,
-      )
-    /* | "static_branch" =>
-         getMaterialShaderLibDataArrByStaticBranchFunc(.
-           (name, isSourceInstance, isSupportInstance),
-           (staticBranchs: array(shaderMapData), shaderLibs),
-           resultDataArr,
-         )
-       | "dynamic_branch" =>
-         getMaterialShaderLibDataArrByDynamicBranch(
-           (materialIndex, name),
-           (dynamicBranchs, shaderLibs, state),
-           isPassFunc,
-           resultDataArr,
-         ) */
+      _getShaderLibDataArrByGroup(groups, name, shaderLibs, resultDataArr)
     | _ =>
-      ErrorUtils.raiseErrorAndReturn(
-        LogUtils.buildFatalMessage(
-          ~title="_getShaderLibDataArrByTypeByThrow",
-          ~description={j|unknown type_:$type_|j},
-          ~reason="",
-          ~solution={j||j},
-          ~params={j|shaderLibs: $shaderLibs|j},
-        ),
+      LogUtils.buildFatalMessage(
+        ~title="_getShaderLibDataArrByType",
+        ~description={j|unknown type_:$type_|j},
+        ~reason="",
+        ~solution={j||j},
+        ~params={j|shaderLibs: $shaderLibs|j},
       )
+      |> ErrorUtils.raiseErrorAndReturn
+      |> Result.fail
     };
 
   let getShaderLibDataArr =
@@ -181,31 +148,29 @@ module Render = {
       ) =>
     shaderLibItems
     |> TinyWonderCommonlib.ArrayUtils.reduceOneParam(
-         (. resultDataArr, {type_, name}: RenderConfigDataType.shaderLibItem) =>
-           switch (type_) {
-           | None =>
-             resultDataArr
-             |> ArrayWT.push(_findFirstShaderDataByThrow(name, shaderLibs))
-           | Some(type_) =>
-             _getShaderLibDataArrByTypeByThrow(
-               /* (
-                    materialIndex,
-                    type_ |> OptionService.unsafeGetJsonSerializedValue,
+         (.
+           resultDataArrResult,
+           {type_, name}: RenderConfigDataType.shaderLibItem,
+         ) =>
+           resultDataArrResult
+           |> Result.bind(resultDataArr => {
+                switch (type_) {
+                | None =>
+                  _findFirstShaderData(name, shaderLibs)
+                  |> Result.map(shaderData => {
+                       resultDataArr |> ArrayWT.push(shaderData)
+                     })
+
+                | Some(type_) =>
+                  _getShaderLibDataArrByType(
+                    type_,
                     groups,
                     name,
-                    isSourceInstance,
-                    isSupportInstance,
-                  ),
-                  (shaderLibs, staticBranchs, dynamicBranchs, state),
-                  (getMaterialShaderLibDataArrByStaticBranchFunc, isPassFunc),
-                  resultDataArr, */
-               type_,
-               groups,
-               name,
-               shaderLibs,
-               resultDataArr,
-             )
-           },
-         ArrayWT.createEmpty(),
+                    shaderLibs,
+                    resultDataArr,
+                  )
+                }
+              }),
+         ArrayWT.createEmpty() |> Result.succeed,
        );
 };

@@ -6,14 +6,18 @@ let test = (message, func) =>
   | _ => ErrorUtils.raiseError(message)
   };
 
-let requireCheckReturnResult =
-    (checkFunc: unit => unit, bodyFunc: unit => 'a, isCheck: bool)
+let requireCheckWithResultBodyFuncReturnResult =
+    (
+      checkFunc: unit => unit,
+      bodyFunc: unit => Result.t('a, Js.Exn.t),
+      isCheck: bool,
+    )
     : Result.t('a, Js.Exn.t) =>
   isCheck
     ? try(
         {
           checkFunc();
-          bodyFunc() |> Result.succeed;
+          bodyFunc();
         }
       ) {
       | Js.Exn.Error(e) => Result.fail(e)
@@ -22,7 +26,16 @@ let requireCheckReturnResult =
           ErrorUtils.raiseErrorAndReturn({j|unknown check error: $err|j}),
         )
       }
-    : bodyFunc() |> Result.succeed;
+    : bodyFunc();
+
+let requireCheckReturnResult =
+    (checkFunc: unit => unit, bodyFunc: unit => 'a, isCheck: bool)
+    : Result.t('a, Js.Exn.t) =>
+  requireCheckWithResultBodyFuncReturnResult(
+    checkFunc,
+    () => bodyFunc() |> Result.succeed,
+    isCheck,
+  );
 
 let ensureCheckReturnResult =
     (checkFunc: 'a => unit, isCheck: bool, returnVal: 'a)

@@ -54,29 +54,26 @@ module Material = {
   let getShaderName = ({shaderName}) => shaderName;
 };
 
-let getGameObjectDataList = state =>
-  state.allGameObjectData.gameObjectDataList;
+let getAllGameObjectData = state => state.gameObjectData;
 
-let setGameObjectDataList = (gameObjectDataList, state) => {
+let setAllGameObjectData = (allGameObjectData, state) => {
   ...state,
-  allGameObjectData: {
-    gameObjectDataList: gameObjectDataList,
-  },
+  gameObjectData: allGameObjectData,
 };
 
-let createAllGameObjectData = () => {gameObjectDataList: []};
+let createAllGameObjectData = () => [];
 
 let addGameObjectData =
     (mMatrix, (vertices, indices), (shaderName, colors), state) =>
-  setGameObjectDataList(
-    [
+  setAllGameObjectData(
+    getAllGameObjectData(state)
+    @ [
       {
         transformData: Transform.createTransformData(mMatrix),
         geometryData:
           Geometry.createGeometryDataWithGeometryPoints(vertices, indices),
         materialData: Material.createMaterialData(shaderName, colors),
       },
-      ...getGameObjectDataList(state),
     ],
     state,
   );

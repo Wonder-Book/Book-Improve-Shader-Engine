@@ -32,7 +32,7 @@
       chunkMap:
         createEmpty()
         
-|> set("webgl1_shader2_vertex", _buildChunk(({|
+|> set("shader2_vertex", _buildChunk(({|
 
 |},{|
 
@@ -46,7 +46,7 @@
 gl_Position = u_pMatrix * u_vMatrix * u_mMatrix * vec4(a_position, 1.0);
 |}))
 
-|> set("webgl1_shader2_fragment", _buildChunk(({|
+|> set("shader2_fragment", _buildChunk(({|
 
 |},{|
 
@@ -60,7 +60,7 @@ gl_Position = u_pMatrix * u_vMatrix * u_mMatrix * vec4(a_position, 1.0);
 gl_FragColor = vec4(u_color0 * u_color1, 1.0);
 |}))
 
-|> set("webgl1_shader1_vertex", _buildChunk(({|
+|> set("shader1_vertex", _buildChunk(({|
 
 |},{|
 
@@ -74,7 +74,7 @@ gl_FragColor = vec4(u_color0 * u_color1, 1.0);
 gl_Position = u_pMatrix * u_vMatrix * u_mMatrix * vec4(a_position, 1.0);
 |}))
 
-|> set("webgl1_shader1_fragment", _buildChunk(({|
+|> set("shader1_fragment", _buildChunk(({|
 
 |},{|
 
@@ -88,7 +88,7 @@ gl_Position = u_pMatrix * u_vMatrix * u_mMatrix * vec4(a_position, 1.0);
 gl_FragColor = vec4(u_color0, 1.0);
 |}))
 
-|> set("webgl1_setPos_mvp", _buildChunk(({|
+|> set("setPos_mvp", _buildChunk(({|
 
 |},{|
 

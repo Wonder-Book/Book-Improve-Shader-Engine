@@ -8,7 +8,7 @@ let createState = () => {
   programData: Shader.Program.createProgramData(),
   cameraData: Camera.createCameraData(),
   viewData: View.createViewData(),
-  allGameObjectData: GameObject.createAllGameObjectData(),
-  glslChunkData: ShaderChunkSystem.create(),
+  gameObjectData: GameObject.createAllGameObjectData(),
+  glslChunkData: ShaderChunk.create(),
   renderConfigData: None,
 };

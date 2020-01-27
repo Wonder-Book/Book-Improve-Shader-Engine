@@ -4,7 +4,7 @@ module GLSL = {
   let createGLSLData = () => {precision: None};
 
   let _getPrecisionSource = ({gpuDetectData, glslChunkData}) => {
-    open ShaderChunkSystem;
+    open ShaderChunk;
     open GPUDetectType;
 
     let {precision}: StateDataType.gpuDetectData = gpuDetectData;
@@ -67,12 +67,12 @@ module GLSL = {
       ((vs, fs), (type_, name), glslChunkData) =>
     switch (type_) {
     | "vs" => (
-        _setSource(vs, ShaderChunkSystem.getChunk(name, glslChunkData)),
+        _setSource(vs, ShaderChunk.getChunk(name, glslChunkData)),
         fs,
       )
     | "fs" => (
         vs,
-        _setSource(fs, ShaderChunkSystem.getChunk(name, glslChunkData)),
+        _setSource(fs, ShaderChunk.getChunk(name, glslChunkData)),
       )
     | type_ =>
       ErrorUtils.raiseErrorAndReturn(
@@ -124,8 +124,8 @@ module GLSL = {
          glslTuple,
        );
 
-  let _buildBody = ({body}: ShaderChunkType.glslChunk, webgl1_main_end) =>
-    body ++ webgl1_main_end;
+  let _buildBody = ({body}: ShaderChunkType.glslChunk, main_end) =>
+    body ++ main_end;
 
   let _generateAttributeSource = shaderLibs =>
     shaderLibs
@@ -226,14 +226,7 @@ module GLSL = {
       ) =>
     top ++ define ++ varDeclare ++ funcDeclare ++ funcDefine ++ body;
 
-  let buildGLSLSource =
-      /* shaderLibs, */
-      (
-        shaderLibs,
-        /* execHandleFunc, */
-        /* (glslRecord, glslChunkData), */
-        {glslData, glslChunkData},
-      ) => {
+  let buildGLSLSource = (shaderLibs, {glslData, glslChunkData}) => {
     open ShaderChunkType;
 
     let vs: glslChunk = _createEmptyChunk();
@@ -250,29 +243,39 @@ module GLSL = {
       top: precision ++ fs.top,
       body: fs.body ++ getWebgl1MainBegin(),
     };
-    let (vs, fs) =
-      _buildVsAndFs(
-        (vs, fs),
-        shaderLibs,
-        /* execHandleFunc, */
-        glslChunkData,
-      );
+    let (vs, fs) = _buildVsAndFs((vs, fs), shaderLibs, glslChunkData);
 
     (
       {
         ...vs,
+        top: vs.top ++ precision,
         body: _buildBody(vs, getWebgl1MainEnd()),
         varDeclare:
           "\n"
-          ++ _generateAttributeSource(shaderLibs)
           ++ vs.varDeclare
-          ++ _buildVarDeclare(vs, shaderLibs),
+          ++ _generateAttributeSource(shaderLibs)
+          ++ "\n"
+          ++ _generateUniformSource(
+               shaderLibs,
+               vs.varDeclare,
+               vs.funcDefine,
+               vs.body,
+             ),
       }
       |> _addAlllParts,
       {
         ...fs,
+        top: fs.top ++ precision,
         body: _buildBody(fs, getWebgl1MainEnd()),
-        varDeclare: _buildVarDeclare(fs, shaderLibs),
+        varDeclare:
+          fs.varDeclare
+          ++ "\n"
+          ++ _generateUniformSource(
+               shaderLibs,
+               fs.varDeclare,
+               fs.funcDefine,
+               fs.body,
+             ),
       }
       |> _addAlllParts,
     );
@@ -311,8 +314,8 @@ module Program = {
     },
   };
 
-  let unsafeGetProgram = (shaderName, state) => {
-    ContractUtils.requireCheckByThrow(
+  let unsafeGetProgramByThrow = (shaderName, state) => {
+    ContractUtils.requireCheck(
       () =>
         ContractUtils.(
           Operators.(
@@ -332,7 +335,7 @@ module Program = {
     );
 
     _getProgramMap(state)
-    |> TinyWonderCommonlib.ImmutableHashMap.unsafeGet(shaderName);
+    |> TinyWonderCommonlib.ImmutableHashMap.unsafeGetByNull(shaderName);
   };
 
   let setProgram = (shaderName, program, state) =>
@@ -387,8 +390,8 @@ module GLSLSender = {
       TinyWonderCommonlib.ImmutableHashMap.createEmpty(),
   };
 
-  let _fastGetCache = (shaderCacheMap, name: string) =>
-    shaderCacheMap |> TinyWonderCommonlib.ImmutableHashMap.fastGet(name);
+  let _fastGetCacheByNull = (shaderCacheMap, name: string) =>
+    shaderCacheMap |> TinyWonderCommonlib.ImmutableHashMap.fastGetByNull(name);
 
   let _queryIsNotCacheWithCache = (cache, x, y, z) => {
     let isNotCached = ref(false);
@@ -412,11 +415,11 @@ module GLSLSender = {
 
   let _isNotCacheVector3AndSetCache =
       (shaderCacheMap, name: string, (x: float, y: float, z: float)) => {
-    let (has, cache) = _fastGetCache(shaderCacheMap, name);
+    let (has, cache) = _fastGetCacheByNull(shaderCacheMap, name);
 
-    has ?
-      (shaderCacheMap, _queryIsNotCacheWithCache(cache, x, y, z)) :
-      (_setCache(shaderCacheMap, name, [|x, y, z|]), true);
+    has
+      ? (shaderCacheMap, _queryIsNotCacheWithCache(cache, x, y, z))
+      : (_setCache(shaderCacheMap, name, [|x, y, z|]), true);
   };
 
   let sendFloat3 =
@@ -448,8 +451,8 @@ module GLSLSender = {
     },
   };
 
-  let unsafeGetShaderCacheMap = (shaderName, state) => {
-    ContractUtils.requireCheckByThrow(
+  let unsafeGetShaderCacheMapByThrow = (shaderName, state) => {
+    ContractUtils.requireCheck(
       () =>
         ContractUtils.(
           Operators.(
@@ -469,7 +472,7 @@ module GLSLSender = {
     );
 
     getUniformCacheMap(state)
-    |> TinyWonderCommonlib.ImmutableHashMap.unsafeGet(shaderName);
+    |> TinyWonderCommonlib.ImmutableHashMap.unsafeGetByNull(shaderName);
   };
 
   let setShaderCacheMap = (shaderName, shaderCacheMap, state) =>
@@ -515,7 +518,7 @@ module GLSLSender = {
       | Some(allData) => allData
       };
 
-    let addAllData = ((shaderName, shaderLibs), gl, program, state) =>
+    let judgeAndAddData = ((shaderName, shaderLibs), gl, program, state) =>
       getAllDataMap(state)
       |> TinyWonderCommonlib.ImmutableHashMap.set(
            shaderName,
@@ -621,7 +624,7 @@ module GLSLSender = {
         | Some(allData) => allData
         };
 
-      let addAllData = ((name, field), gl, program, sendDataList) =>
+      let judgeAndAddData = ((name, field), gl, program, sendDataList) =>
         switch (field) {
         | "mMatrix" =>
           DataCommon.addData(program, name, gl, sendDataList, pos =>
@@ -660,7 +663,7 @@ module GLSLSender = {
         | Some(allData) => allData
         };
 
-      let addAllData = ((name, field), gl, program, sendDataList) =>
+      let judgeAndAddData = ((name, field), gl, program, sendDataList) =>
         switch (field) {
         | "color0" =>
           DataCommon.addData(program, name, gl, sendDataList, pos =>
@@ -713,7 +716,7 @@ module GLSLSender = {
         | Some(allData) => allData
         };
 
-      let addAllData = ((name, field), gl, program, sendDataList) =>
+      let judgeAndAddData = ((name, field), gl, program, sendDataList) =>
         switch (field) {
         | "vMatrix" =>
           DataCommon.addData(program, name, gl, sendDataList, pos =>
@@ -761,7 +764,7 @@ module GLSLSender = {
         };
     };
 
-    let addAllData = ((shaderName, shaderLibs), gl, program, state) => {
+    let judgeAndAddData = ((shaderName, shaderLibs), gl, program, state) => {
       let {
         renderObjectSendModelDataList,
         renderObjectSendMaterialDataList,
@@ -788,29 +791,30 @@ module GLSLSender = {
                             shaderSendDataList,
                           },
                           {name, field, type_}: RenderConfigDataType.uniform,
-                        ) => {
-                          renderObjectSendModelDataList:
-                            ModelData.addAllData(
-                              (name, field),
-                              gl,
-                              program,
-                              renderObjectSendModelDataList,
-                            ),
-                          renderObjectSendMaterialDataList:
-                            MaterialData.addAllData(
-                              (name, field),
-                              gl,
-                              program,
-                              renderObjectSendMaterialDataList,
-                            ),
-                          shaderSendDataList:
-                            ShaderData.addAllData(
-                              (name, field),
-                              gl,
-                              program,
-                              shaderSendDataList,
-                            ),
-                        },
+                        ) =>
+                          {
+                            renderObjectSendModelDataList:
+                              ModelData.judgeAndAddData(
+                                (name, field),
+                                gl,
+                                program,
+                                renderObjectSendModelDataList,
+                              ),
+                            renderObjectSendMaterialDataList:
+                              MaterialData.judgeAndAddData(
+                                (name, field),
+                                gl,
+                                program,
+                                renderObjectSendMaterialDataList,
+                              ),
+                            shaderSendDataList:
+                              ShaderData.judgeAndAddData(
+                                (name, field),
+                                gl,
+                                program,
+                                shaderSendDataList,
+                              ),
+                          },
                         allSendUniformDataLists,
                       )
                  }
@@ -856,12 +860,12 @@ let _compileShader = (gl, glslSource: string, shader) => {
   Gl.compileShader(shader, gl);
 
   shader
-  |> ContractUtils.ensureCheckByThrow(
+  |> ContractUtils.ensureCheck(
        shader =>
          ContractUtils.(
            Gl.getShaderParameter(shader, Gl.getCompileStatus(gl), gl)
-           === false ?
-             {
+           === false
+             ? {
                let message = Gl.getShaderInfoLog(shader, gl);
 
                LogUtils.log({j|shader info log:
@@ -870,8 +874,8 @@ let _compileShader = (gl, glslSource: string, shader) => {
           $glslSource|j});
 
                assertFail();
-             } :
-             ()
+             }
+             : ()
          ),
        Debug.getIsDebug(DebugData.getDebugData()),
      );
@@ -881,7 +885,7 @@ let _linkProgram = (program, gl) => {
   Gl.linkProgram(program, gl);
 
   ()
-  |> ContractUtils.ensureCheckByThrow(
+  |> ContractUtils.ensureCheck(
        () =>
          ContractUtils.
            /*! perf: slow
@@ -900,8 +904,8 @@ let _linkProgram = (program, gl) => {
            /*! perf: faster */
            (
              Gl.getProgramParameter(program, Gl.getLinkStatus(gl), gl)
-             === false ?
-               {
+             === false
+               ? {
                  let message = Gl.getProgramInfoLog(program, gl);
 
                  LogUtils.buildAssertMessage(
@@ -909,8 +913,8 @@ let _linkProgram = (program, gl) => {
                    ~actual={j|fail: $message|j},
                  )
                  |> assertFailWithMessage;
-               } :
-               ()
+               }
+               : ()
            ),
        Debug.getIsDebug(DebugData.getDebugData()),
      );
@@ -975,7 +979,8 @@ let _initShader = (vsSource: string, fsSource: string, gl, program) => {
 };
 
 let _changeAllGLSLDataToInitShaderDataArr =
-    allGLSLData: Result.t(array(InitShaderDataType.initShaderData), Js.Exn.t) =>
+    (allGLSLData)
+    : Result.t(array(InitShaderDataType.initShaderData), Js.Exn.t) =>
   allGLSLData
   |> Result.map(((groups, shaders, shaderLibs)) =>
        shaders
@@ -1024,12 +1029,12 @@ let init =
                           |> _initShader(vs, fs, gl);
 
                         state
-                        |> GLSLSender.AttributeSendData.addAllData(
+                        |> GLSLSender.AttributeSendData.judgeAndAddData(
                              (shaderName, shaderLibs),
                              gl,
                              program,
                            )
-                        |> GLSLSender.UniformSendData.addAllData(
+                        |> GLSLSender.UniformSendData.judgeAndAddData(
                              (shaderName, shaderLibs),
                              gl,
                              program,

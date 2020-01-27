@@ -40,9 +40,9 @@ let setLookAt = (eye, center, up, mat) => {
 
   Js.Math.abs_float(eyeX -. centerX) < _getEpsilon()
   && Js.Math.abs_float(eyeY -. centerY) < _getEpsilon()
-  && Js.Math.abs_float(eyeZ -. centerZ) < _getEpsilon() ?
-    mat :
-    {
+  && Js.Math.abs_float(eyeZ -. centerZ) < _getEpsilon()
+    ? mat
+    : {
       let z = Vector.sub(eye, center) |> Vector.normalize;
 
       let x = Vector.cross(up, z) |> Vector.normalize;
@@ -77,7 +77,7 @@ let setLookAt = (eye, center, up, mat) => {
 };
 
 let buildPerspective = ((fovy, aspect, near, far), mat) =>
-  ContractUtils.requireCheck(
+  ContractUtils.requireCheckReturnResult(
     () =>
       ContractUtils.(
         Operators.(

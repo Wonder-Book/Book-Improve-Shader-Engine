@@ -8,7 +8,7 @@ let push = (item, arr) => {
   arr;
 };
 
-let unsafeGetFirst = arr => Array.unsafe_get(arr, 0);
+// let unsafeGetFirst = arr => Array.unsafe_get(arr, 0);
 
 let unsafeFindFirst = (arr: array('a), targetValue, func) =>
   arr |> unsafeFind(func);

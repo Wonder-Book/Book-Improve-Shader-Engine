@@ -52,7 +52,7 @@ let _createVAOs =
 let _initVAOs = (gl, state) =>
   GPUDetect.unsafeGetVAOExt(state)
   |> Result.map(vaoExt =>
-       GameObject.getGameObjectDataList(state)
+       GameObject.getAllGameObjectData(state)
        |> List.map(
             ({transformData, geometryData, materialData} as gameObjectData) =>
             {
@@ -76,17 +76,16 @@ let _initVAOs = (gl, state) =>
                 },
             }
           )
-       |> GameObject.setGameObjectDataList(_, state)
+       |> GameObject.setAllGameObjectData(_, state)
      );
 
 let _getProgram = (shaderName, state) =>
-  Shader.Program.unsafeGetProgram(shaderName, state);
+  Shader.Program.unsafeGetProgramByThrow(shaderName, state);
 
-let _changeGameObjectDataListToRenderDataList =
-    (gameObjectDataList, gl, state) =>
+let _changeAllGameObjectDataToRenderDataList = (allGameObjectData, gl, state) =>
   GPUDetect.unsafeGetVAOExt(state)
   |> Result.bind(vaoExt =>
-       gameObjectDataList
+       allGameObjectData
        |> ListWT.traverseResultM(
             ({transformData, geometryData, materialData} as gameObjectData) =>
             GameObject.Geometry.unsafeGetVAO(geometryData)
@@ -140,7 +139,7 @@ let _sendUniformMaterialData = (shaderName, colors, state) =>
          Shader.GLSLSender.setShaderCacheMap(
            shaderName,
            sendDataFunc(
-             Shader.GLSLSender.unsafeGetShaderCacheMap(shaderName, state),
+             Shader.GLSLSender.unsafeGetShaderCacheMapByThrow(shaderName, state),
              colors,
            ),
            state,
@@ -172,7 +171,7 @@ let _sendUniformShaderData = (gl, state) =>
                             state
                             |> Shader.Program.use(
                                  gl,
-                                 Shader.Program.unsafeGetProgram(
+                                 Shader.Program.unsafeGetProgramByThrow(
                                    shaderName,
                                    state,
                                  ),
@@ -187,13 +186,15 @@ let _sendUniformShaderData = (gl, state) =>
           )
      );
 
-let render = (gl, state) =>
+let render = (gl, state) => {
+  DeviceManager.initGlState(gl);
+
   state
   |> _sendUniformShaderData(gl)
   |> Result.bind(_initVAOs(gl))
   |> Result.bind(state =>
-       _changeGameObjectDataListToRenderDataList(
-         GameObject.getGameObjectDataList(state),
+       _changeAllGameObjectDataToRenderDataList(
+         GameObject.getAllGameObjectData(state),
          gl,
          state,
        )
@@ -238,3 +239,4 @@ let render = (gl, state) =>
                )
           )
      );
+};

@@ -14,6 +14,13 @@ type attributeLocation = int;
 
 type uniformLocation;
 
+type bufferTarget =
+  | ArrayBuffer
+  | ElementArrayBuffer;
+
+type usage =
+  | Static;
+
 type extension;
 
 type precisionFormat = {. "precision": int};
@@ -54,8 +61,6 @@ external shaderSource: (shader, string) => unit = "";
 
 [@bs.get] external getMediumFloat: webgl1Context => int = "MEDIUM_FLOAT";
 
-/* [@bs.get] external getLowFloat: webgl1Context => int = "LOW_FLOAT"; */
-
 [@bs.send.pipe: webgl1Context]
 external getShaderParameter: (shader, int) => bool = "";
 
@@ -84,29 +89,25 @@ external bindAttribLocation: (program, int, string) => unit = "";
 
 [@bs.send.pipe: webgl1Context] external createBuffer: buffer = "";
 
-[@bs.get] external getArrayBuffer: webgl1Context => int = "ARRAY_BUFFER";
+[@bs.get]
+external getArrayBuffer: webgl1Context => bufferTarget = "ARRAY_BUFFER";
 
 [@bs.get]
-external getElementArrayBuffer: webgl1Context => int = "ELEMENT_ARRAY_BUFFER";
-
-[@bs.send.pipe: webgl1Context] external bindBuffer: (int, buffer) => unit = "";
-
-/* [@bs.send.pipe: webgl1Context]
-   external resetBuffer: (int, Js.nullable(buffer)) => unit = "bindBuffer"; */
+external getElementArrayBuffer: webgl1Context => bufferTarget =
+  "ELEMENT_ARRAY_BUFFER";
 
 [@bs.send.pipe: webgl1Context]
-external bufferFloat32Data: (int, Float32Array.t, int) => unit = "bufferData";
-
-/* [@bs.send.pipe: webgl1Context]
-   external bufferFloat32DataWithCapacity: (int, int, int) => unit = "bufferData"; */
+external bindBuffer: (bufferTarget, buffer) => unit = "";
 
 [@bs.send.pipe: webgl1Context]
-external bufferUint16Data: (int, Uint16Array.t, int) => unit = "bufferData";
+external bufferFloat32Data: (bufferTarget, Float32Array.t, usage) => unit =
+  "bufferData";
 
-/* [@bs.send.pipe: webgl1Context]
-   external bufferUint32Data: (int, Uint32Array.t, int) => unit = "bufferData"; */
+[@bs.send.pipe: webgl1Context]
+external bufferUint16Data: (bufferTarget, Uint16Array.t, usage) => unit =
+  "bufferData";
 
-[@bs.get] external getStaticDraw: webgl1Context => int = "STATIC_DRAW";
+[@bs.get] external getStaticDraw: webgl1Context => usage = "STATIC_DRAW";
 
 [@bs.send.pipe: webgl1Context]
 external getAttribLocation: (program, string) => attributeLocation = "";

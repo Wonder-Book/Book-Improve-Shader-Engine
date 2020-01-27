@@ -19,7 +19,5 @@ let loopBody = state =>
 
        Gl.clear(Gl.getColorBufferBit(gl) lor Gl.getDepthBufferBit(gl), gl);
 
-       DeviceManager.initGlState(gl);
-
        Render.render(gl, state);
      });

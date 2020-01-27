@@ -22,13 +22,13 @@ type materialData = {
   colors: list(Color.Color3.t),
 };
 
-type gameObjectData = {
+type singleGameObjectData = {
   transformData,
   geometryData,
   materialData,
 };
 
-type allGameObjectData = {gameObjectDataList: list(gameObjectData)};
+type gameObjectData = list(singleGameObjectData);
 
 type cameraData = {
   vMatrix: option(CoordinateTransformationMatrix.View.t),
@@ -139,7 +139,7 @@ and state = {
   glslSenderData,
   programData,
   cameraData,
-  allGameObjectData,
+  gameObjectData,
   glslChunkData: ShaderChunkType.glslChunkData,
   renderConfigData: option(RenderConfigDataType.renderConfigData),
 };

@@ -38,11 +38,11 @@
         "glsls": [
             {
                 "type": "vs",
-                "name": "webgl1_shader1_vertex"
+                "name": "shader1_vertex"
             },
             {
                 "type": "fs",
-                "name": "webgl1_shader1_fragment"
+                "name": "shader1_fragment"
             }
         ],
         "variables": {
@@ -60,11 +60,11 @@
         "glsls": [
             {
                 "type": "vs",
-                "name": "webgl1_shader2_vertex"
+                "name": "shader2_vertex"
             },
             {
                 "type": "fs",
-                "name": "webgl1_shader2_fragment"
+                "name": "shader2_fragment"
             }
         ],
         "variables": {

@@ -12,8 +12,8 @@
     ],
     "bs-dependencies": [
         "tiny-wonder-commonlib",
-        "wonder-bs-json",
-        "wonder-bs-most",
+        "tiny-wonder-bs-json",
+        "tiny-wonder-bs-most",
         "bs-fetch"
     ],
     "bs-dev-dependencies": [],

@@ -5,24 +5,24 @@ module Render = {
 
   let create = ((shaders, shaderLibs)) => Some({shaders, shaderLibs});
 
-  let _getData = ({renderConfigData}) =>
+  let _unsafeGetData = ({renderConfigData}) =>
     renderConfigData |> Option.unsafeGet;
 
   let getAllShaders = state =>
-    state |> _getData |> Result.map(({shaders}) => shaders.shaders);
+    state |> _unsafeGetData |> Result.map(({shaders}) => shaders.shaders);
 
   let getGroups = state =>
-    state |> _getData |> Result.map(({shaders}) => shaders.groups);
+    state |> _unsafeGetData |> Result.map(({shaders}) => shaders.groups);
 
   let getAllShaderLibs = state =>
-    state |> _getData |> Result.map(({shaderLibs}) => shaderLibs);
+    state |> _unsafeGetData |> Result.map(({shaderLibs}) => shaderLibs);
 
-  let _findFirstShaderData =
+  let _findFirstShaderDataByThrow =
       (
         shaderLibName: string,
         shaderLibs: array(RenderConfigDataType.shaderLib),
       ) => {
-    ContractUtils.requireCheckByThrow(
+    ContractUtils.requireCheck(
       () =>
         ContractUtils.(
           Operators.(
@@ -43,7 +43,7 @@ module Render = {
       shaderLibs, shaderLibName, (item: RenderConfigDataType.shaderLib) =>
       item.name === shaderLibName
     )
-    |> ContractUtils.ensureCheckByThrow(
+    |> ContractUtils.ensureCheck(
          r => {
            open ContractUtils;
            open Operators;
@@ -57,19 +57,19 @@ module Render = {
                ~actual={j|not|j},
              ),
              () =>
-             r |> assertNullableExist
+             r |> ObjMagicUtils.returnMagicValue |> assertNullableExist
            );
          },
          Debug.getIsDebug(DebugData.getDebugData()),
        );
   };
 
-  let _unsafeFindGroup = (name, groups) =>
+  let _unsafeFindGroupByThrow = (name, groups) =>
     ArrayWT.unsafeFindFirst(
       groups, name, (item: RenderConfigDataType.shaderMapData) =>
       item.name === name
     )
-    |> ContractUtils.ensureCheckByThrow(
+    |> ContractUtils.ensureCheck(
          r => {
            open ContractUtils;
            open Operators;
@@ -83,20 +83,20 @@ module Render = {
                ~actual={j|not|j},
              ),
              () =>
-             r |> assertNullableExist
+             r |> ObjMagicUtils.returnMagicValue |> assertNullableExist
            );
          },
          Debug.getIsDebug(DebugData.getDebugData()),
        );
 
-  let _getShaderLibDataArrByGroup =
+  let _getShaderLibDataArrByGroupByThrow =
       (
         groups: array(RenderConfigDataType.shaderMapData),
         name,
         shaderLibs,
         resultDataArr,
       ) => {
-    ContractUtils.requireCheckByThrow(
+    ContractUtils.requireCheck(
       () =>
         ContractUtils.(
           Operators.(
@@ -114,15 +114,15 @@ module Render = {
     );
 
     Js.Array.concat(
-      _unsafeFindGroup(name, groups).value
+      _unsafeFindGroupByThrow(name, groups).value
       |> Js.Array.map((name: string) =>
-           _findFirstShaderData(name, shaderLibs)
+           _findFirstShaderDataByThrow(name, shaderLibs)
          ),
       resultDataArr,
     );
   };
 
-  let _getShaderLibDataArrByType =
+  let _getShaderLibDataArrByTypeByThrow =
       /* (
            materialIndex,
            type_,
@@ -142,7 +142,12 @@ module Render = {
       (type_, groups, name, shaderLibs, resultDataArr) =>
     switch (type_) {
     | "group" =>
-      _getShaderLibDataArrByGroup(groups, name, shaderLibs, resultDataArr)
+      _getShaderLibDataArrByGroupByThrow(
+        groups,
+        name,
+        shaderLibs,
+        resultDataArr,
+      )
     /* | "static_branch" =>
          getMaterialShaderLibDataArrByStaticBranchFunc(.
            (name, isSourceInstance, isSupportInstance),
@@ -159,7 +164,7 @@ module Render = {
     | _ =>
       ErrorUtils.raiseErrorAndReturn(
         LogUtils.buildFatalMessage(
-          ~title="_getShaderLibDataArrByType",
+          ~title="_getShaderLibDataArrByTypeByThrow",
           ~description={j|unknown type_:$type_|j},
           ~reason="",
           ~solution={j||j},
@@ -180,9 +185,9 @@ module Render = {
            switch (type_) {
            | None =>
              resultDataArr
-             |> ArrayWT.push(_findFirstShaderData(name, shaderLibs))
+             |> ArrayWT.push(_findFirstShaderDataByThrow(name, shaderLibs))
            | Some(type_) =>
-             _getShaderLibDataArrByType(
+             _getShaderLibDataArrByTypeByThrow(
                /* (
                     materialIndex,
                     type_ |> OptionService.unsafeGetJsonSerializedValue,

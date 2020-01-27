@@ -1,5 +1,5 @@
 let unsafeGet = optionData =>
-  ContractUtils.requireCheck(
+  ContractUtils.requireCheckReturnResult(
     () =>
       ContractUtils.(
         Operators.(
@@ -18,7 +18,7 @@ let unsafeGet = optionData =>
   );
 
 let unsafeGetByThrow = optionData => {
-  ContractUtils.requireCheckByThrow(
+  ContractUtils.requireCheck(
     () =>
       ContractUtils.(
         Operators.(
